@@ -1,0 +1,5 @@
+### ✅ `requirements.txt`
+
+```txt
+spidev
+gpiozero
