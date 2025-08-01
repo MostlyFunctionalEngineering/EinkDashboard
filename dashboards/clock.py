@@ -1,5 +1,5 @@
 from datetime import datetime
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageOps
 import logging
 
 logger = logging.getLogger(__name__)
@@ -17,7 +17,8 @@ def render(epd, config):
         use_24hr = clock_cfg.get('use_24hr', False)
         show_date = clock_cfg.get('show_date', False)
         date_format = clock_cfg.get('date_format', '%Y-%m-%d')
-        spacing = clock_cfg.get('vertical_spacing', 5)  # new config
+        spacing = clock_cfg.get('vertical_spacing', 5)
+        invert = clock_cfg.get('invert_colors', False)
 
         now = datetime.now()
         time_str = now.strftime('%H:%M' if use_24hr else '%I:%M').lstrip('0')
@@ -28,7 +29,10 @@ def render(epd, config):
         time_font = ImageFont.truetype(font_path, time_font_size)
         date_font = ImageFont.truetype(font_path, date_font_size) if show_date else None
 
-        black_img = Image.new('1', (height, width), 255)
+        background_color = 0 if invert else 255
+        text_color = 255 if invert else 0
+
+        black_img = Image.new('1', (height, width), background_color)
         red_img = Image.new('1', (height, width), 255)
         draw_black = ImageDraw.Draw(black_img)
 
@@ -45,12 +49,12 @@ def render(epd, config):
             date_x = (height - date_w) // 2
             date_y = top_margin + time_h + spacing
 
-            draw_black.text((time_x, time_y), time_str, font=time_font, fill=0)
-            draw_black.text((date_x, date_y), date_str, font=date_font, fill=0)
+            draw_black.text((time_x, time_y), time_str, font=time_font, fill=text_color)
+            draw_black.text((date_x, date_y), date_str, font=date_font, fill=text_color)
         else:
             time_x = (height - time_w) // 2
             time_y = (width - time_h) // 2
-            draw_black.text((time_x, time_y), time_str, font=time_font, fill=0)
+            draw_black.text((time_x, time_y), time_str, font=time_font, fill=text_color)
 
         logger.debug("Sending image to display")
         epd.display(epd.getbuffer(black_img), epd.getbuffer(red_img))

@@ -1,5 +1,6 @@
 clock:
   refresh_interval_seconds: 60
+  invert_colors: true
   font_path: fonts/home-video-font/HomeVideo-BLG6G.ttf
   font_size: 50        # Font size for time
   date_font_size: 20   # Font size for date
