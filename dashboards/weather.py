@@ -174,8 +174,8 @@ def render(epd, config):
             draw.text((x, forecast_y + 56), label, font=small_font, fill=black)
 
         # Rotate for landscape and display
-        rotated_black = black_img.rotate(270, expand=True)
-        rotated_red = red_img.rotate(270, expand=True)
+        rotated_black = black_img.rotate(90, expand=True)
+        rotated_red = red_img.rotate(90, expand=True)
         epd.display(epd.getbuffer(rotated_black), epd.getbuffer(rotated_red))
         logger.debug("Weather dashboard rendered")
 
