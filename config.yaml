@@ -19,6 +19,9 @@ stocks:
   refresh_interval_seconds: 900
 weather:
   location: 84043
+  units: "C"                 # "F" or "C"
+  date_format: "%a %b %d"    # strftime format
+  forecast_mode: "daily"    # "hourly" or "daily"
   font_path: fonts/3d-thirteen-pixel-fonts/3DThirteenPixelFontsRegular-2dPv.ttf
   font_size: 24
   invert_colors: false
