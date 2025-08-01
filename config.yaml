@@ -1,9 +1,15 @@
 clock:
   refresh_interval_seconds: 60
   font_path: fonts/thirteen-pixel-fonts/ThirteenPixelFontsRegular-wjR3.ttf
-  font_size: 36
+  font_size: 40        # Font size for time
+  date_font_size: 20   # Font size for date
   use_24hr: true
   show_date: true
+  date_format: "%A, %b %d"
+  # Examples:
+  # date_format: "%b %d"        # Aug 01
+  # date_format: "%A, %b %d"    # Thursday, Aug 01
+  # date_format: "%Y-%m-%d"     # 2025-08-01"
 current_dashboard: clock
 stocks:
   symbols:
