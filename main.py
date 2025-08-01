@@ -25,14 +25,27 @@ def sleep_aligned(seconds):
     next_time = ((now // seconds) + 1) * seconds
     time.sleep(max(0, next_time - now))
 
-def get_refresh_interval(dashboard_name, config):
-    return config.get(dashboard_name, {}).get('refresh_interval_seconds', 60)
-
-def sleep_for_dashboard(dashboard_name, interval):
+def sleep_for_dashboard(dashboard_name, interval, last_mtime_ref):
     if dashboard_name == 'clock':
         sleep_aligned(interval)
-    else:
-        time.sleep(interval)
+        return
+
+    start = time.time()
+    deadline = start + interval
+
+    while time.time() < deadline:
+        time.sleep(1)
+        try:
+            current_mtime = os.path.getmtime(CONFIG_PATH)
+            if current_mtime != last_mtime_ref[0]:
+                logging.debug("Detected config change during sleep")
+                break
+        except FileNotFoundError:
+            logging.warning("Config file disappeared during sleep")
+            break
+
+def get_refresh_interval(dashboard_name, config):
+    return config.get(dashboard_name, {}).get('refresh_interval_seconds', 60)
 
 def start_web_gui():
     web.app.run(host='0.0.0.0', port=8080, debug=False, use_reloader=False)
@@ -48,6 +61,7 @@ def main():
     gui_thread.start()
 
     last_mtime = os.path.getmtime(CONFIG_PATH)
+    last_mtime_ref = [last_mtime]  # mutable reference
     last_dashboard = None
 
     try:
@@ -67,12 +81,13 @@ def main():
                     logging.info(f"Rendered dashboard: {current}")
                     last_dashboard = current
                     last_mtime = mtime
+                    last_mtime_ref[0] = mtime
                 except Exception as e:
                     logging.exception(f"Failed to render dashboard '{current}': {e}")
 
             interval = get_refresh_interval(current, config)
             logging.debug(f"Sleeping for {interval} seconds")
-            sleep_for_dashboard(current, interval)
+            sleep_for_dashboard(current, interval, last_mtime_ref)
 
     except KeyboardInterrupt:
         logging.info("Interrupted by user. Cleaning up.")
