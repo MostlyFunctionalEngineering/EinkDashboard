@@ -72,8 +72,11 @@ def render(epd, config):
 
         # Convert grayscale to binary mask: black text becomes white mask
         mask = text_layer.point(lambda p: 255 if p < 128 else 0, mode='1')
-        text_bitmap = Image.new('1', (height, width), text_color)
+
+        # Always paste black text for visibility, regardless of inversion
+        text_bitmap = Image.new('1', (height, width), 0)
         black_img.paste(text_bitmap, (0, 0), mask)
+
 
         logger.debug("Sending image to display")
         epd.display(epd.getbuffer(black_img), epd.getbuffer(red_img))
