@@ -103,7 +103,8 @@ def render(epd, config):
         # Draw date (top right)
         now = datetime.now()
         date_str = now.strftime(date_fmt)
-        date_w, date_h = font.getsize(date_str)
+        bbox = font.getbbox(date_str)
+        date_w, date_h = bbox[2] - bbox[0], bbox[3] - bbox[1]
         draw.text((width - date_w - 6, 4), date_str, font=font, fill=black)
 
         # Draw weather icon (top left)
