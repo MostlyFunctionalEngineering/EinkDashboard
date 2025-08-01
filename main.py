@@ -1,9 +1,13 @@
+import os
 import time
 import yaml
 import logging
 import sys
+import threading
+
 from display import show_dashboard
 import lib.epd2in13b_V4 as epd2in13b_V4
+import web  # assumes web.py defines Flask app as `app`
 
 CONFIG_PATH = 'config.yaml'
 
@@ -30,21 +34,41 @@ def sleep_for_dashboard(dashboard_name, interval):
     else:
         time.sleep(interval)
 
+def start_web_gui():
+    web.app.run(host='0.0.0.0', port=8080, debug=False, use_reloader=False)
+
 def main():
+    config = load_config()
+    setup_logging(config)
+
     epd = epd2in13b_V4.EPD()
-    epd.init()    
+    epd.init()
+
+    gui_thread = threading.Thread(target=start_web_gui, daemon=True)
+    gui_thread.start()
+
+    last_mtime = os.path.getmtime(CONFIG_PATH)
+    last_dashboard = None
 
     try:
         while True:
-            config = load_config()
+            mtime = os.path.getmtime(CONFIG_PATH)
+            if mtime != last_mtime:
+                config = load_config()
+                last_mtime = mtime
+                logging.debug("Config file changed, reloading")
+
             current = config.get('current_dashboard', 'clock')
-            setup_logging(config)
             logging.debug(f"Selected dashboard: {current}")
-            try:
-                show_dashboard(current, epd, config)
-                logging.info(f"Rendered dashboard: {current}")
-            except Exception as e:
-                logging.exception(f"Failed to render dashboard '{current}': {e}")
+
+            if current != last_dashboard or mtime != last_mtime:
+                try:
+                    show_dashboard(current, epd, config)
+                    logging.info(f"Rendered dashboard: {current}")
+                    last_dashboard = current
+                except Exception as e:
+                    logging.exception(f"Failed to render dashboard '{current}': {e}")
+
             interval = get_refresh_interval(current, config)
             logging.debug(f"Sleeping for {interval} seconds")
             sleep_for_dashboard(current, interval)
