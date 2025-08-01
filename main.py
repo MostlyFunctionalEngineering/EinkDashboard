@@ -79,7 +79,8 @@ def main():
 
             force_refresh = check_and_clear_flag()
 
-            if current != last_dashboard or force_refresh:
+            should_render = current == 'clock' or current != last_dashboard or force_refresh
+            if should_render:
                 try:
                     show_dashboard(current, epd, config)
                     logging.info(f"Rendered dashboard: {current}")
