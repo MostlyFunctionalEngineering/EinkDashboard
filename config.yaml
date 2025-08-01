@@ -1,7 +1,7 @@
 clock:
   refresh_interval_seconds: 60
-  font_path: fonts/thirteen-pixel-fonts/ThirteenPixelFontsRegular-wjR3.ttf
-  font_size: 40        # Font size for time
+  font_path: fonts/home-video-font/HomeVideo-BLG6G.ttf
+  font_size: 50        # Font size for time
   date_font_size: 20   # Font size for date
   vertical_spacing: 16  # Pixels of space between time and date
   use_24hr: true
