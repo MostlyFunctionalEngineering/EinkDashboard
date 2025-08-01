@@ -4,6 +4,7 @@ import yaml
 import logging
 import sys
 import threading
+from datetime import datetime
 
 from display import show_dashboard
 import lib.epd2in13b_V4 as epd2in13b_V4
@@ -21,41 +22,20 @@ def setup_logging(config):
     level = getattr(logging, level_str, logging.INFO)
     logging.basicConfig(level=level, format='%(asctime)s [%(levelname)s] %(message)s')
 
-def sleep_aligned(seconds):
-    now = time.time()
-    next_time = ((now // seconds) + 1) * seconds
-    time.sleep(max(0, next_time - now))
-
-def sleep_for_dashboard(dashboard_name, interval):
-    start = time.time()
-    deadline = start + interval
-
-    if dashboard_name == 'clock':
-        logging.debug(f"[{dashboard_name}] Aligned interruptible sleep for {interval} seconds")
-        while time.time() < deadline:
-            time.sleep(1)
-            if os.path.exists(FLAG_PATH):
-                logging.debug(f"[{dashboard_name}] Refresh flag detected during aligned sleep — breaking early")
-                break
-        logging.debug(f"[{dashboard_name}] Aligned sleep complete")
-        return
-
-    logging.debug(f"[{dashboard_name}] Sleep for {interval} seconds")
-    time.sleep(interval)
-
-
-def get_refresh_interval(dashboard_name, config):
-    return config.get(dashboard_name, {}).get('refresh_interval_seconds', 60)
-
-def start_web_gui():
-    web.app.run(host='0.0.0.0', port=8080, debug=False, use_reloader=False)
-
 def check_and_clear_flag():
     if os.path.exists(FLAG_PATH):
         os.remove(FLAG_PATH)
         logging.debug("Refresh flag detected and cleared")
         return True
     return False
+
+def start_web_gui():
+    web.app.run(host='0.0.0.0', port=8080, debug=False, use_reloader=False)
+
+def get_refresh_interval(dashboard_name, config):
+    if dashboard_name == 'clock':
+        return None
+    return config.get(dashboard_name, {}).get('refresh_interval_seconds', 60)
 
 def main():
     config = load_config()
@@ -68,29 +48,43 @@ def main():
     gui_thread.start()
 
     last_dashboard = None
+    last_minute = None
+    last_rendered = 0
 
     try:
         while True:
-            logging.debug(f"Starting dashboard loop at {time.strftime('%H:%M:%S')}")
-
             config = load_config()
             current = config.get('current_dashboard', 'clock')
             logging.debug(f"Selected dashboard: {current}")
 
+            now = time.time()
             force_refresh = check_and_clear_flag()
 
-            should_render = current == 'clock' or current != last_dashboard or force_refresh
+            should_render = False
+
+            if current == 'clock':
+                this_minute = datetime.now().strftime('%Y-%m-%d %H:%M')
+                if this_minute != last_minute:
+                    should_render = True
+                    last_minute = this_minute
+            else:
+                interval = get_refresh_interval(current, config)
+                if current != last_dashboard:
+                    should_render = True
+                elif force_refresh or (now - last_rendered >= interval):
+                    should_render = True
+
             if should_render:
                 try:
                     show_dashboard(current, epd, config)
                     logging.info(f"Rendered dashboard: {current}")
+                    last_rendered = now
                     last_dashboard = current
                 except Exception as e:
                     logging.exception(f"Failed to render dashboard '{current}': {e}")
 
-            interval = get_refresh_interval(current, config)
-            logging.debug(f"Dashboard '{current}' refresh interval: {interval} seconds")
-            sleep_for_dashboard(current, interval)
+            # Wait short time to keep loop responsive
+            time.sleep(1)
 
     except KeyboardInterrupt:
         logging.info("Interrupted by user. Cleaning up.")
