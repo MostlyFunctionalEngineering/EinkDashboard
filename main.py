@@ -1,4 +1,6 @@
-import time, yaml
+import time
+import yaml
+import logging
 from display import show_dashboard
 import lib.epd2in13b_V4 as epd2in13b_V4
 
@@ -8,34 +10,44 @@ def load_config():
     with open(CONFIG_PATH, 'r') as f:
         return yaml.safe_load(f)
 
+def setup_logging(config):
+    level_str = config.get('logging', {}).get('level', 'INFO').upper()
+    level = getattr(logging, level_str, logging.INFO)
+    logging.basicConfig(level=level, format='%(asctime)s [%(levelname)s] %(message)s')
+
 def sleep_aligned(seconds):
     now = time.time()
     next_time = ((now // seconds) + 1) * seconds
     time.sleep(max(0, next_time - now))
 
 def get_refresh_interval(dashboard_name, config):
-    """Get refresh interval from config for a given dashboard."""
     return config.get(dashboard_name, {}).get('refresh_interval_seconds', 60)
 
 def sleep_for_dashboard(dashboard_name, interval):
-    """Sleep aligned to the interval for 'clock', otherwise sleep raw."""
     if dashboard_name == 'clock':
         sleep_aligned(interval)
     else:
         time.sleep(interval)
 
 def main():
+    config = load_config()
+    setup_logging(config)
+
+    logging.info("Starting dashboard manager")
     epd = epd2in13b_V4.EPD()
     epd.init()
 
     while True:
-        config = load_config()
+        config = load_config()  # re-load each loop for live config edits
         current = config.get('current_dashboard', 'clock')
+        logging.debug(f"Selected dashboard: {current}")
         try:
             show_dashboard(current, epd, config)
+            logging.info(f"Rendered dashboard: {current}")
         except Exception as e:
-            print(f"Error: {e}")
+            logging.exception(f"Failed to render dashboard '{current}': {e}")
         interval = get_refresh_interval(current, config)
+        logging.debug(f"Sleeping for {interval} seconds")
         sleep_for_dashboard(current, interval)
 
 if __name__ == '__main__':

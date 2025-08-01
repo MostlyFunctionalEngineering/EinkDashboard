@@ -18,3 +18,6 @@ youtube:
   font_size: 12
   timeframe_days: 30
   refresh_interval_seconds: 1800
+logging:
+  level: DEBUG #"DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"
+
