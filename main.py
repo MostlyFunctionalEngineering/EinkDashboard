@@ -26,7 +26,7 @@ try:
     time.sleep(1)
 
     # Load fonts
-    font_path = os.path.join(PIC_DIR, 'Font.ttc')  # You must have this font locally
+    font_path = os.path.join(PIC_DIR, 'Fonts/thirteen-pixel-fonts/ThirteenPixelFontsRegular-wjR3.ttf')  # You must have this font locally
     font20 = ImageFont.truetype(font_path, 20)
     font18 = ImageFont.truetype(font_path, 18)
 
@@ -74,7 +74,7 @@ try:
 
     # Read BMP full frame
     logging.info("3. Display full-frame BMP")
-    bmp_path = os.path.join(PIC_DIR, '2in13b_V4b.bmp')  # Supply this image
+    bmp_path = os.path.join(PIC_DIR, '464x46_Frame.png')  # Supply this image
     Blackimage = Image.open(bmp_path)
     RYimage = Image.open(bmp_path)
     epd.display(epd.getbuffer(Blackimage), epd.getbuffer(RYimage))
@@ -84,7 +84,7 @@ try:
     logging.info("4. Display windowed BMP")
     blackimage1 = Image.new('1', (epd.height, epd.width), 255)
     redimage1 = Image.new('1', (epd.height, epd.width), 255)
-    sub_bmp_path = os.path.join(PIC_DIR, '100x100.bmp')  # Must exist
+    sub_bmp_path = os.path.join(PIC_DIR, '250x122_Geometric_Pattern.png')  # Must exist
     newimage = Image.open(sub_bmp_path)
     blackimage1.paste(newimage, (0, 0))
     epd.display(epd.getbuffer(blackimage1), epd.getbuffer(redimage1))
