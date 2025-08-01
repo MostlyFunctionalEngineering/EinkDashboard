@@ -8,6 +8,22 @@ def load_config():
     with open(CONFIG_PATH, 'r') as f:
         return yaml.safe_load(f)
 
+def sleep_aligned(seconds):
+    now = time.time()
+    next_time = ((now // seconds) + 1) * seconds
+    time.sleep(max(0, next_time - now))
+
+def get_refresh_interval(dashboard_name, config):
+    """Get refresh interval from config for a given dashboard."""
+    return config.get(dashboard_name, {}).get('refresh_interval_seconds', 60)
+
+def sleep_for_dashboard(dashboard_name, interval):
+    """Sleep aligned to the interval for 'clock', otherwise sleep raw."""
+    if dashboard_name == 'clock':
+        sleep_aligned(interval)
+    else:
+        time.sleep(interval)
+
 def main():
     epd = epd2in13b_V4.EPD()
     epd.init()
@@ -19,7 +35,8 @@ def main():
             show_dashboard(current, epd, config)
         except Exception as e:
             print(f"Error: {e}")
-        time.sleep(config.get('refresh_interval_seconds', 60))
+        interval = get_refresh_interval(current, config)
+        sleep_for_dashboard(current, interval)
 
 if __name__ == '__main__':
     main()

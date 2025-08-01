@@ -1,15 +1,20 @@
 clock:
+  refresh_interval_seconds: 60
   font_path: fonts/ansela-pixel-font/AnselaPixelDemoRegular-BLjX5.otf
   font_size: 10
+  use_24hr: true
+  show_date: false
 current_dashboard: clock
-refresh_interval_seconds: 60
 stocks:
   symbols:
   - GOOG
   - TSLA
+  refresh_interval_seconds: 900
 weather:
   location: '84043'
+  refresh_interval_seconds: 900
 youtube:
   font_path: fonts/ansela-pixel-font/AnselaPixelDemoRegular-BLjX5.otf
   font_size: 12
   timeframe_days: 30
+  refresh_interval_seconds: 1800
