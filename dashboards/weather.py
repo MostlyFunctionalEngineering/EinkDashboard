@@ -104,7 +104,7 @@ def render(epd, config):
 
         # Config
         cfg = config.get('weather', {})
-        bg_path = cfg.get('background')  # None means no background
+        bg_path = cfg.get('background')
         font_path = cfg.get('font_path', '/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf')
         font_size = cfg.get('font_size', 24)
         invert = cfg.get('invert_colors', False)
@@ -115,6 +115,7 @@ def render(epd, config):
 
         white = 255 if not invert else 0
         black = 0 if not invert else 255
+        text_color = black
 
         font = ImageFont.truetype(font_path, font_size)
         small_font = ImageFont.truetype(font_path, int(font_size * 0.6))
@@ -142,12 +143,11 @@ def render(epd, config):
 
         draw = ImageDraw.Draw(black_img)
 
-
         # Date (top right)
         date_str = now.strftime(date_fmt)
         bbox = font.getbbox(date_str)
         date_w, date_h = bbox[2] - bbox[0], bbox[3] - bbox[1]
-        draw.text((width - date_w - 6, 4), date_str, font=font, fill=black)
+        draw.text((width - date_w - 6, 4), date_str, font=font, fill=text_color)
 
         # Current icon
         current_code = current.get("weathercode", 0)
@@ -159,8 +159,8 @@ def render(epd, config):
         unit = "°C" if use_celsius else "°F"
         temp = round(current["temperature"])
         feels_like = round(forecast["apparent_temperature"][0]) if forecast_mode == "hourly" else temp
-        draw.text((90, 20), f"{temp}{unit}", font=font, fill=black)
-        draw.text((90, 20 + font_size + 2), f"Feels like {feels_like}{unit}", font=small_font, fill=black)
+        draw.text((90, 20), f"{temp}{unit}", font=font, fill=text_color)
+        draw.text((90, 20 + font_size + 2), f"Feels like {feels_like}{unit}", font=small_font, fill=text_color)
 
         # Forecast (bottom)
         forecast_y = height - 50
@@ -181,12 +181,16 @@ def render(epd, config):
             icon_path = icon_path_for_code(f_code, night)
             icon = Image.open(icon_path).convert('1').resize((40, 40))
             black_img.paste(icon, (x, forecast_y))
-            draw.text((x, forecast_y + 42), f"{f_temp}{unit}", font=small_font, fill=black)
-            draw.text((x, forecast_y + 56), label, font=small_font, fill=black)
+            draw.text((x, forecast_y + 42), f"{f_temp}{unit}", font=small_font, fill=text_color)
+            draw.text((x, forecast_y + 56), label, font=small_font, fill=text_color)
 
-        # Rotate for landscape and display
+        # Rotate and invert if needed
         rotated_black = black_img.rotate(90, expand=True)
         rotated_red = red_img.rotate(90, expand=True)
+
+        if invert:
+            rotated_black = Image.eval(rotated_black, lambda px: 255 - px)
+
         epd.display(epd.getbuffer(rotated_black), epd.getbuffer(rotated_red))
         logger.debug("Weather dashboard rendered")
 
