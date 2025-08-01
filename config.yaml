@@ -1,3 +1,1 @@
-api_key: "YOUR_YOUTUBE_API_KEY"
-channel_id: "UCXXXXXXXXXXXXXX"
 refresh_interval_minutes: 30  # Default: every half hour

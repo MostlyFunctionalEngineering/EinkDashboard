@@ -5,6 +5,7 @@ import os, sys, time, yaml, csv, logging
 from datetime import datetime, timedelta
 from PIL import Image, ImageDraw, ImageFont
 import requests
+from dotenv import load_dotenv
 import lib.epd2in13b_V4 as epd2in13b_V4
 
 # Setup
@@ -18,11 +19,17 @@ FONT_PATH = os.path.join(SCRIPT_DIR, 'pic', 'Font.ttc')
 logging.basicConfig(level=logging.INFO)
 
 # Load config
+load_dotenv()
 with open(CONFIG_PATH, 'r') as f:
     config = yaml.safe_load(f)
-API_KEY = config['api_key']
-CHANNEL_ID = config['channel_id']
-REFRESH_MINUTES = config.get('refresh_interval_minutes', 60)
+API_KEY = os.getenv("YOUTUBE_API_KEY") or config['api_key']
+CHANNEL_ID = os.getenv("YOUTUBE_CHANNEL_ID") or config['channel_id']
+REFRESH_MINUTES = config.get('refresh_interval_minutes', 1)
+
+# Safety Check
+if not API_KEY or not CHANNEL_ID:
+    logging.error("API key or Channel ID not set")
+    sys.exit(1)
 
 def fetch_subscriber_count():
     url = f"https://www.googleapis.com/youtube/v3/channels?part=statistics&id={CHANNEL_ID}&key={API_KEY}"
