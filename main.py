@@ -16,6 +16,22 @@ logging.basicConfig(
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 PIC_DIR = os.path.join(SCRIPT_DIR, 'assets')  # Replace 'pic' with your own structure
 
+def load_image_safe(path, target_size=(122, 250)):
+    img = Image.open(path).convert('1')
+
+    # If dimensions are flipped, auto-rotate
+    if img.size == (target_size[1], target_size[0]):
+        logging.info(f"Rotating image {path} from {img.size} to {target_size}")
+        img = img.rotate(90, expand=True)
+
+    # If still not the correct size, resize
+    if img.size != target_size:
+        logging.warning(f"Resizing image {path} from {img.size} to {target_size}")
+        img = img.resize(target_size)
+
+    return img
+
+
 try:
     logging.info("epd2in13b_V4 Demo")
 
@@ -37,9 +53,9 @@ try:
     drawblack = ImageDraw.Draw(HBlackimage)
     drawry = ImageDraw.Draw(HRYimage)
 
-    drawblack.text((10, 0), 'hello world', font=font20, fill=0)
-    drawblack.text((10, 20), '2.13inch e-Paper b V4', font=font20, fill=0)
-    drawblack.text((120, 0), u'微雪电子', font=font20, fill=0)
+    drawblack.text((10, 0), 'Mostly', font=font20, fill=0)
+    drawblack.text((10, 20), 'Functional', font=font20, fill=0)
+    drawblack.text((120, 0), 'Engineering', font=font20, fill=0)
     drawblack.line((20, 50, 70, 100), fill=0)
     drawblack.line((70, 50, 20, 100), fill=0)
     drawblack.rectangle((20, 50, 70, 100), outline=0)
@@ -59,9 +75,9 @@ try:
     drawblack = ImageDraw.Draw(LBlackimage)
     drawry = ImageDraw.Draw(LRYimage)
 
-    drawblack.text((2, 0), 'hello world', font=font18, fill=0)
-    drawblack.text((2, 20), '2.13 epd b V4', font=font18, fill=0)
-    drawblack.text((20, 50), u'微雪电子', font=font18, fill=0)
+    drawblack.text((2, 0), 'Mostly', font=font18, fill=0)
+    drawblack.text((2, 20), 'Functional', font=font18, fill=0)
+    drawblack.text((20, 50), 'Engineering', font=font18, fill=0)
     drawblack.line((10, 90, 60, 140), fill=0)
     drawblack.line((60, 90, 10, 140), fill=0)
     drawblack.rectangle((10, 90, 60, 140), outline=0)
@@ -74,23 +90,27 @@ try:
 
     # Read BMP full frame
     logging.info("3. Display full-frame BMP")
-    bmp_path = os.path.join(PIC_DIR, '46x46_Frame.png')  # Supply this image
-    Blackimage = Image.open(bmp_path)
-    RYimage = Image.open(bmp_path)
-    epd.display(epd.getbuffer(Blackimage), epd.getbuffer(RYimage))
+    bmp_path = os.path.join(PIC_DIR, '46x46_Frame.png')
+    img = load_image_safe(os.path.join(PIC_DIR, '46x46_Frame.png'))
+    epd.display(epd.getbuffer(img), epd.getbuffer(img))
     time.sleep(2)
 
     # BMP in corner
     logging.info("4. Display windowed BMP")
     blackimage1 = Image.new('1', (epd.height, epd.width), 255)
     redimage1 = Image.new('1', (epd.height, epd.width), 255)
-    sub_bmp_path = os.path.join(PIC_DIR, '250x122_Geometric_Pattern.png')  # Must exist
-    newimage = Image.open(sub_bmp_path)
-    blackimage1.paste(newimage, (0, 0))
-    epd.display(epd.getbuffer(blackimage1), epd.getbuffer(redimage1))
+    corner_img = load_image_safe(os.path.join(PIC_DIR, 'Geometric_Pattern.png'))
+    # Make sure it fits (optionally scale smaller)
+    if corner_img.size[0] > epd.height or corner_img.size[1] > epd.width:
+        logging.warning("Corner image too large, scaling down to fit")
+        corner_img.thumbnail((epd.height, epd.width))
+
+    black = Image.new('1', (epd.height, epd.width), 255)
+    black.paste(corner_img, (0, 0))  # You could center it too if needed
+    epd.display(epd.getbuffer(black), epd.getbuffer(Image.new('1', (epd.height, epd.width), 255)))
 
     logging.info("Clearing...")
-    epd.init()
+    #epd.init()
     epd.Clear()
 
     logging.info("Sleeping...")
