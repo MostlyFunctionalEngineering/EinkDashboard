@@ -31,6 +31,7 @@ import logging
 from lib.epdconfig import RaspberryPi
 
 epdconfig = RaspberryPi()
+epdconfig.module_exit(cleanup=True)
 
 # Display resolution
 EPD_WIDTH       = 122
