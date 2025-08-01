@@ -1,8 +1,10 @@
 from flask import Flask, render_template, request, redirect
 import yaml
+import os
 
 app = Flask(__name__)
 CONFIG_PATH = 'config.yaml'
+FLAG_PATH = '.refresh_dashboard.flag'  # IPC flag
 
 def load_config():
     with open(CONFIG_PATH) as f:
@@ -11,6 +13,9 @@ def load_config():
 def save_config(cfg):
     with open(CONFIG_PATH, 'w') as f:
         yaml.dump(cfg, f)
+    # Touch the flag file
+    with open(FLAG_PATH, 'w') as flag:
+        flag.write('trigger')
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -23,11 +28,13 @@ def index():
 
 @app.route('/edit', methods=['GET', 'POST'])
 def edit():
-    config = load_config()
     if request.method == 'POST':
         new_config = request.form['config']
         with open(CONFIG_PATH, 'w') as f:
             f.write(new_config)
+        # Also set the flag
+        with open(FLAG_PATH, 'w') as flag:
+            flag.write('trigger')
         return redirect('/')
     return render_template('edit.html', config=open(CONFIG_PATH).read())
 
