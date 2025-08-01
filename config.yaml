@@ -3,6 +3,7 @@ clock:
   font_path: fonts/thirteen-pixel-fonts/ThirteenPixelFontsRegular-wjR3.ttf
   font_size: 40        # Font size for time
   date_font_size: 20   # Font size for date
+  vertical_spacing: 6  # Pixels of space between time and date
   use_24hr: true
   show_date: true
   date_format: "%A, %b %d"

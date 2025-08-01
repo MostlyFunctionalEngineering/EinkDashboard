@@ -17,6 +17,7 @@ def render(epd, config):
         use_24hr = clock_cfg.get('use_24hr', False)
         show_date = clock_cfg.get('show_date', False)
         date_format = clock_cfg.get('date_format', '%Y-%m-%d')
+        spacing = clock_cfg.get('vertical_spacing', 5)  # new config
 
         now = datetime.now()
         time_str = now.strftime('%H:%M' if use_24hr else '%I:%M').lstrip('0')
@@ -31,30 +32,27 @@ def render(epd, config):
         red_img = Image.new('1', (height, width), 255)
         draw_black = ImageDraw.Draw(black_img)
 
-        # Measure time
         time_w, time_h = time_font.getmask(time_str).size
 
         if show_date:
             date_w, date_h = date_font.getmask(date_str).size
-            total_height = time_h + date_h + 5  # 5px padding
+            total_height = time_h + spacing + date_h
             top_margin = (width - total_height) // 2
 
             time_x = (height - time_w) // 2
             time_y = top_margin
 
             date_x = (height - date_w) // 2
-            date_y = top_margin + time_h + 5
+            date_y = top_margin + time_h + spacing
 
             draw_black.text((time_x, time_y), time_str, font=time_font, fill=0)
             draw_black.text((date_x, date_y), date_str, font=date_font, fill=0)
-
         else:
-            # Center only the time
             time_x = (height - time_w) // 2
             time_y = (width - time_h) // 2
             draw_black.text((time_x, time_y), time_str, font=time_font, fill=0)
 
-        logger.debug("Sending centered image to display")
+        logger.debug("Sending image to display")
         epd.display(epd.getbuffer(black_img), epd.getbuffer(red_img))
         logger.debug("Clock dashboard rendered")
 
