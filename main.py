@@ -27,13 +27,22 @@ def sleep_aligned(seconds):
     time.sleep(max(0, next_time - now))
 
 def sleep_for_dashboard(dashboard_name, interval):
+    start = time.time()
+    deadline = start + interval
+
     if dashboard_name == 'clock':
-        logging.debug(f"[{dashboard_name}] Aligned sleep starting for {interval} seconds")
-        sleep_aligned(interval)
+        logging.debug(f"[{dashboard_name}] Aligned interruptible sleep for {interval} seconds")
+        while time.time() < deadline:
+            time.sleep(1)
+            if os.path.exists(FLAG_PATH):
+                logging.debug(f"[{dashboard_name}] Refresh flag detected during aligned sleep — breaking early")
+                break
         logging.debug(f"[{dashboard_name}] Aligned sleep complete")
-    else:
-        logging.debug(f"[{dashboard_name}] Sleeping for {interval} seconds")
-        time.sleep(interval)
+        return
+
+    logging.debug(f"[{dashboard_name}] Sleep for {interval} seconds")
+    time.sleep(interval)
+
 
 def get_refresh_interval(dashboard_name, config):
     return config.get(dashboard_name, {}).get('refresh_interval_seconds', 60)
