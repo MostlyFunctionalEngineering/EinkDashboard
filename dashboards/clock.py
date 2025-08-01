@@ -1,5 +1,6 @@
 from datetime import datetime
 from PIL import Image, ImageDraw, ImageFont, ImageOps
+import os
 import logging
 
 logger = logging.getLogger(__name__)
@@ -11,6 +12,7 @@ def render(epd, config):
         height, width = epd.height, epd.width
 
         clock_cfg = config.get('clock', {})
+        bg_path = clock_cfg.get('background')  # None means no background
         font_path = clock_cfg.get('font_path', '/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf')
         time_font_size = clock_cfg.get('font_size', 40)
         date_font_size = clock_cfg.get('date_font_size', 20)
@@ -34,6 +36,15 @@ def render(epd, config):
 
         black_img = Image.new('1', (height, width), background_color)
         red_img = Image.new('1', (height, width), 255)
+
+        if bg_path and os.path.exists(bg_path):
+            try:
+                background = Image.open(bg_path).convert('1').resize((height, width))
+                black_img.paste(background)
+                logger.debug(f"Applied background image: {bg_path}")
+            except Exception as e:
+                logger.warning(f"Failed to load background image '{bg_path}': {e}")
+
         draw_black = ImageDraw.Draw(black_img)
 
         time_w, time_h = time_font.getmask(time_str).size

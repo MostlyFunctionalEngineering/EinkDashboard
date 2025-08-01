@@ -12,6 +12,10 @@ clock:
   # date_format: "%b %d"        # Aug 01
   # date_format: "%A, %b %d"    # Thursday, Aug 01
   # date_format: "%Y-%m-%d"     # 2025-08-01"
+  background: assets/Borders_and_Logos/250x122_Rounded_Frame_With_Shadow.bmp
+  # background: assets/Borders_and_Logos/250x122_Geometric_Pattern.bmp
+  # background: assets/Borders_and_Logos/250x122_Sqaure_With_Shadow_Background.bmp
+  # background: null   # No background
 stocks:
   symbols:
   - GOOG
@@ -26,6 +30,10 @@ weather:
   font_size: 24
   invert_colors: false
   refresh_interval_seconds: 60
+  background: assets/Borders_and_Logos/250x122_Rounded_Frame_With_Shadow.bmp
+  # background: assets/Borders_and_Logos/250x122_Geometric_Pattern.bmp
+  # background: assets/Borders_and_Logos/250x122_Sqaure_With_Shadow_Background.bmp
+  # background: null   # No background
 youtube:
   font_path: fonts/ansela-pixel-font/AnselaPixelDemoRegular-BLjX5.otf
   font_size: 12

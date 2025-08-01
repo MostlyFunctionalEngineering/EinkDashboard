@@ -104,6 +104,7 @@ def render(epd, config):
 
         # Config
         cfg = config.get('weather', {})
+        bg_path = cfg.get('background')  # None means no background
         font_path = cfg.get('font_path', '/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf')
         font_size = cfg.get('font_size', 24)
         invert = cfg.get('invert_colors', False)
