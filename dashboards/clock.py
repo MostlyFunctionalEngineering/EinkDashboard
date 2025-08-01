@@ -1,5 +1,5 @@
 from datetime import datetime
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageOps
 import os
 import logging
 
@@ -46,7 +46,9 @@ def render(epd, config):
             except Exception as e:
                 logger.warning(f"Failed to load background {bg_path}: {e}")
 
-        draw_black = ImageDraw.Draw(black_img)
+        # Create text layer
+        text_layer = Image.new('1', (height, width), 255 if not invert else 0)
+        draw_text = ImageDraw.Draw(text_layer)
 
         time_w, time_h = time_font.getmask(time_str).size
 
@@ -61,12 +63,16 @@ def render(epd, config):
             date_x = (height - date_w) // 2
             date_y = top_margin + time_h + spacing
 
-            draw_black.text((time_x, time_y), time_str, font=time_font, fill=text_color)
-            draw_black.text((date_x, date_y), date_str, font=date_font, fill=text_color)
+            draw_text.text((time_x, time_y), time_str, font=time_font, fill=text_color)
+            draw_text.text((date_x, date_y), date_str, font=date_font, fill=text_color)
         else:
             time_x = (height - time_w) // 2
             time_y = (width - time_h) // 2
-            draw_black.text((time_x, time_y), time_str, font=time_font, fill=text_color)
+            draw_text.text((time_x, time_y), time_str, font=time_font, fill=text_color)
+
+        # Composite text onto black_img
+        mask = text_layer if text_color == 0 else ImageOps.invert(text_layer)
+        black_img = Image.composite(text_layer, black_img, mask)
 
         logger.debug("Sending image to display")
         epd.display(epd.getbuffer(black_img), epd.getbuffer(red_img))
