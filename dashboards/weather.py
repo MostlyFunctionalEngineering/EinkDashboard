@@ -145,7 +145,10 @@ def render(epd, config):
 
         # Push to screen
         logger.debug("Sending image to display")
-        epd.display(epd.getbuffer(black_img), epd.getbuffer(red_img))
+        rotated_black = black_img.rotate(270, expand=True)
+        rotated_red = red_img.rotate(270, expand=True)
+        epd.display(epd.getbuffer(rotated_black), epd.getbuffer(rotated_red))
+
         logger.debug("Weather dashboard rendered")
 
     except Exception as e:
