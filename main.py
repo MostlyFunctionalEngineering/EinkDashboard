@@ -8,6 +8,8 @@ import requests
 from dotenv import load_dotenv
 import lib.epd2in13b_V4 as epd2in13b_V4
 
+epd = None
+
 # Paths
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 CONFIG_PATH = os.path.join(SCRIPT_DIR, 'config.yaml')
@@ -92,6 +94,34 @@ def get_changes(data):
     monthly = latest - delta_filter(timedelta(days=30))
     return latest, daily, weekly, monthly
 
+def draw_dashboard(epd):
+    logging.debug("Initializing EPD display")
+    epd.init()
+    epd.Clear()
+
+    # Create blank images
+    black_img = Image.new('1', (epd.height, epd.width), 255)
+    red_img = Image.new('1', (epd.height, epd.width), 255)
+    draw_black = ImageDraw.Draw(black_img)
+    draw_red = ImageDraw.Draw(red_img)
+
+    # Center the YouTube logo
+    try:
+        logo = Image.open(LOGO_PATH)
+        logo_width, logo_height = logo.size
+
+        x_center = (epd.height - logo_width) // 2
+        y_center = (epd.width - logo_height) // 2
+
+        red_img.paste(logo, (x_center, y_center))
+        logging.debug("Logo pasted to red layer at center")
+    except Exception as e:
+        logging.warning(f"Logo load failed: {e}")
+
+    epd.display(epd.getbuffer(black_img), epd.getbuffer(red_img))
+    epd.sleep()
+
+"""
 def draw_dashboard(epd, count, daily, weekly, monthly):
     logging.debug("Initializing EPD display")
     epd.init()
@@ -132,8 +162,18 @@ def draw_dashboard(epd, count, daily, weekly, monthly):
     logging.debug("Pushing image to EPD")
     epd.display(epd.getbuffer(black_img), epd.getbuffer(red_img))
     epd.sleep()
+"""
 
 def main():
+    global epd
+    logging.info("Starting logo test loop")
+    epd = epd2in13b_V4.EPD()
+
+    while True:
+        draw_dashboard(epd)
+        time.sleep(5)
+    
+    """
     logging.info("Starting dashboard loop")
     epd = epd2in13b_V4.EPD()
     while True:
@@ -147,11 +187,18 @@ def main():
         else:
             logging.warning("No subscriber data fetched; skipping dashboard update")
         time.sleep(REFRESH_MINUTES * 60)
+    """
 
 if __name__ == '__main__':
     try:
         main()
     except KeyboardInterrupt:
-        logging.info("Interrupted — cleaning up display")
+        logging.info("Interrupted — clearing screen and cleaning up")
+        if epd:
+            try:
+                epd.init()
+                epd.Clear()
+            except Exception as e:
+                logging.warning(f"Failed to clear display during exit: {e}")
         epd2in13b_V4.epdconfig.module_exit(cleanup=True)
         sys.exit()
