@@ -37,13 +37,10 @@ def render(epd, config):
         black_img = Image.new('1', (height, width), background_color)
         red_img = Image.new('1', (height, width), 255)
 
+        # Paste background if provided
         if bg_path and os.path.exists(bg_path):
-            try:
-                background = Image.open(bg_path).convert('1').resize((height, width))
-                black_img.paste(background)
-                logger.debug(f"Applied background image: {bg_path}")
-            except Exception as e:
-                logger.warning(f"Failed to load background image '{bg_path}': {e}")
+            background = Image.open(bg_path).convert('1').resize((height, width))
+            black_img.paste(background, (0, 0))
 
         draw_black = ImageDraw.Draw(black_img)
 

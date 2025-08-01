@@ -131,7 +131,17 @@ def render(epd, config):
 
         black_img = Image.new('1', (width, height), white)
         red_img = Image.new('1', (width, height), 255)
+
+        if bg_path and os.path.exists(bg_path):
+            try:
+                background = Image.open(bg_path).convert('1').resize((width, height))
+                black_img.paste(background)
+                logger.debug(f"Applied background image: {bg_path}")
+            except Exception as e:
+                logger.warning(f"Failed to load background image: {bg_path}, error: {e}")
+
         draw = ImageDraw.Draw(black_img)
+
 
         # Date (top right)
         date_str = now.strftime(date_fmt)
