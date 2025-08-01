@@ -67,7 +67,7 @@ def adjust_icon_for_daylight(base_icon, night):
     return base_icon
 
 def icon_path_for_code(code, night=False):
-    filename = WEATHER_CODE_ICON_MAP.get(int(code), "cloudy.bmp")
+    filename = WEATHERCODE_ICON_MAP.get(int(code), "cloudy.bmp")
     adjusted = adjust_icon_for_daylight(filename, night)
     return os.path.join(ICON_DIR, adjusted)
 
