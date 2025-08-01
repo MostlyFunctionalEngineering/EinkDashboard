@@ -1,5 +1,5 @@
 from datetime import datetime
-from PIL import Image, ImageDraw, ImageFont, ImageOps
+from PIL import Image, ImageDraw, ImageFont
 import os
 import logging
 
@@ -37,7 +37,7 @@ def render(epd, config):
         black_img = Image.new('1', (height, width), background_color)
         red_img = Image.new('1', (height, width), 255)
 
-        # Paste background BEFORE drawing
+        # Paste background image if present
         if bg_path and os.path.exists(bg_path):
             try:
                 background = Image.open(bg_path).convert('1').resize((height, width))
@@ -46,8 +46,8 @@ def render(epd, config):
             except Exception as e:
                 logger.warning(f"Failed to load background {bg_path}: {e}")
 
-        # Create text layer
-        text_layer = Image.new('1', (height, width), 255 if not invert else 0)
+        # Draw text onto grayscale layer for masking
+        text_layer = Image.new('L', (height, width), 255)  # white background
         draw_text = ImageDraw.Draw(text_layer)
 
         time_w, time_h = time_font.getmask(time_str).size
@@ -63,17 +63,17 @@ def render(epd, config):
             date_x = (height - date_w) // 2
             date_y = top_margin + time_h + spacing
 
-            draw_text.text((time_x, time_y), time_str, font=time_font, fill=text_color)
-            draw_text.text((date_x, date_y), date_str, font=date_font, fill=text_color)
+            draw_text.text((time_x, time_y), time_str, font=time_font, fill=0)
+            draw_text.text((date_x, date_y), date_str, font=date_font, fill=0)
         else:
             time_x = (height - time_w) // 2
             time_y = (width - time_h) // 2
-            draw_text.text((time_x, time_y), time_str, font=time_font, fill=text_color)
+            draw_text.text((time_x, time_y), time_str, font=time_font, fill=0)
 
-        # Create binary mask from text content (text = white, background = black)
-        mask = text_layer.point(lambda p: 255 if p != (255 if invert else 0) else 0, mode='1')
-        black_img.paste(text_layer, (0, 0), mask)
-
+        # Convert grayscale to binary mask: black text becomes white mask
+        mask = text_layer.point(lambda p: 255 if p < 128 else 0, mode='1')
+        text_bitmap = Image.new('1', (height, width), text_color)
+        black_img.paste(text_bitmap, (0, 0), mask)
 
         logger.debug("Sending image to display")
         epd.display(epd.getbuffer(black_img), epd.getbuffer(red_img))
