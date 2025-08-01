@@ -1,6 +1,7 @@
 import time
 import yaml
 import logging
+import sys
 from display import show_dashboard
 import lib.epd2in13b_V4 as epd2in13b_V4
 
@@ -30,25 +31,27 @@ def sleep_for_dashboard(dashboard_name, interval):
         time.sleep(interval)
 
 def main():
-    config = load_config()
-    setup_logging(config)
-
-    logging.info("Starting dashboard manager")
     epd = epd2in13b_V4.EPD()
     epd.init()
 
-    while True:
-        config = load_config()  # re-load each loop for live config edits
-        current = config.get('current_dashboard', 'clock')
-        logging.debug(f"Selected dashboard: {current}")
-        try:
-            show_dashboard(current, epd, config)
-            logging.info(f"Rendered dashboard: {current}")
-        except Exception as e:
-            logging.exception(f"Failed to render dashboard '{current}': {e}")
-        interval = get_refresh_interval(current, config)
-        logging.debug(f"Sleeping for {interval} seconds")
-        sleep_for_dashboard(current, interval)
+    try:
+        while True:
+            config = load_config()
+            current = config.get('current_dashboard', 'clock')
+            logging.debug(f"Selected dashboard: {current}")
+            try:
+                show_dashboard(current, epd, config)
+                logging.info(f"Rendered dashboard: {current}")
+            except Exception as e:
+                logging.exception(f"Failed to render dashboard '{current}': {e}")
+            interval = get_refresh_interval(current, config)
+            logging.debug(f"Sleeping for {interval} seconds")
+            sleep_for_dashboard(current, interval)
+
+    except KeyboardInterrupt:
+        logging.info("Interrupted by user. Cleaning up.")
+        epd2in13b_V4.epdconfig.module_exit(cleanup=True)
+        sys.exit(0)
 
 if __name__ == '__main__':
     main()

@@ -4,7 +4,6 @@ from datetime import datetime
 from PIL import Image, ImageDraw, ImageFont
 
 def render(epd, config):
-    epd.init()
     epd.Clear()
 
     # Get display dimensions
