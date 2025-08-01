@@ -26,11 +26,14 @@ def sleep_aligned(seconds):
     time.sleep(max(0, next_time - now))
 
 def sleep_for_dashboard(dashboard_name, interval, last_mtime_ref):
+    start = time.time()
     if dashboard_name == 'clock':
+        logging.debug(f"[{dashboard_name}] Aligned sleep starting for {interval} seconds")
         sleep_aligned(interval)
+        logging.debug(f"[{dashboard_name}] Aligned sleep complete")
         return
 
-    start = time.time()
+    logging.debug(f"[{dashboard_name}] Interruptible sleep starting for up to {interval} seconds")
     deadline = start + interval
 
     while time.time() < deadline:
@@ -38,11 +41,14 @@ def sleep_for_dashboard(dashboard_name, interval, last_mtime_ref):
         try:
             current_mtime = os.path.getmtime(CONFIG_PATH)
             if current_mtime != last_mtime_ref[0]:
-                logging.debug("Detected config change during sleep")
+                logging.debug("Detected config change during sleep — breaking early")
                 break
         except FileNotFoundError:
-            logging.warning("Config file disappeared during sleep")
+            logging.warning("Config file disappeared during sleep — breaking")
             break
+
+    slept = round(time.time() - start, 2)
+    logging.debug(f"[{dashboard_name}] Slept for {slept} seconds")
 
 def get_refresh_interval(dashboard_name, config):
     return config.get(dashboard_name, {}).get('refresh_interval_seconds', 60)
@@ -66,6 +72,7 @@ def main():
 
     try:
         while True:
+            logging.debug(f"Starting dashboard loop at {time.strftime('%H:%M:%S')}")
             mtime = os.path.getmtime(CONFIG_PATH)
             config_changed = mtime != last_mtime
             if config_changed:
@@ -84,12 +91,20 @@ def main():
                     logging.exception(f"Failed to render dashboard '{current}': {e}")
 
             interval = get_refresh_interval(current, config)
+            logging.debug(f"Dashboard '{current}' refresh interval: {interval} seconds")
             logging.debug(f"Sleeping for {interval} seconds")
             sleep_for_dashboard(current, interval, last_mtime_ref)
 
-            # Only update mtime *after* sleep, so changes during sleep can be caught
-            last_mtime = os.path.getmtime(CONFIG_PATH)
-            last_mtime_ref[0] = last_mtime
+            # Re-check mtime after sleeping to detect mid-sleep config edits
+            new_mtime = os.path.getmtime(CONFIG_PATH)
+            config_changed = new_mtime != last_mtime
+            if config_changed:
+                config = load_config()
+                logging.debug("Config file changed during sleep, reloading")
+
+            last_mtime = new_mtime
+            last_mtime_ref[0] = new_mtime
+
 
 
     except KeyboardInterrupt:
