@@ -1,12 +1,11 @@
-import dashboards.clock as clock
+from dashboards import clock, weather
 
-DASHBOARD_MAP = {
-    'clock': clock.render,
+dashboards = {
+    "clock": clock.render,
+    "weather": weather.render,
 }
 
 def show_dashboard(name, epd, config):
-    renderer = DASHBOARD_MAP.get(name)
-    if renderer:
-        renderer(epd, config)
-    else:
+    if name not in dashboards:
         raise ValueError(f"No dashboard found for: {name}")
+    dashboards[name](epd, config)

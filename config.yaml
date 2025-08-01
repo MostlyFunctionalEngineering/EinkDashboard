@@ -19,7 +19,7 @@ stocks:
   refresh_interval_seconds: 900
 weather:
   location: '84043'
-  refresh_interval_seconds: 900
+  refresh_interval_seconds: 20
 youtube:
   font_path: fonts/ansela-pixel-font/AnselaPixelDemoRegular-BLjX5.otf
   font_size: 12
