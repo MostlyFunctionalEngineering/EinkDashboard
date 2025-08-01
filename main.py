@@ -73,11 +73,13 @@ def main():
     try:
         while True:
             logging.debug(f"Starting dashboard loop at {time.strftime('%H:%M:%S')}")
-            mtime = os.path.getmtime(CONFIG_PATH)
-            config_changed = mtime != last_mtime
+
+            # Re-check mtime after sleep
+            new_mtime = os.path.getmtime(CONFIG_PATH)
+            config_changed = new_mtime != last_mtime
             if config_changed:
                 config = load_config()
-                logging.debug("Config file changed, reloading")
+                logging.debug("Config file changed during sleep, reloading")
 
             current = config.get('current_dashboard', 'clock')
             logging.debug(f"Selected dashboard: {current}")
@@ -95,16 +97,9 @@ def main():
             logging.debug(f"Sleeping for {interval} seconds")
             sleep_for_dashboard(current, interval, last_mtime_ref)
 
-            # Re-check mtime after sleeping to detect mid-sleep config edits
-            new_mtime = os.path.getmtime(CONFIG_PATH)
-            config_changed = new_mtime != last_mtime
-            if config_changed:
-                config = load_config()
-                logging.debug("Config file changed during sleep, reloading")
-
+            # update state tracking AFTER rendering + sleep
             last_mtime = new_mtime
             last_mtime_ref[0] = new_mtime
-
 
 
     except KeyboardInterrupt:
