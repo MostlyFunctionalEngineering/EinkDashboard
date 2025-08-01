@@ -74,7 +74,7 @@ try:
 
     # Read BMP full frame
     logging.info("3. Display full-frame BMP")
-    bmp_path = os.path.join(PIC_DIR, '464x46_Frame.png')  # Supply this image
+    bmp_path = os.path.join(PIC_DIR, '46x46_Frame.png')  # Supply this image
     Blackimage = Image.open(bmp_path)
     RYimage = Image.open(bmp_path)
     epd.display(epd.getbuffer(Blackimage), epd.getbuffer(RYimage))
