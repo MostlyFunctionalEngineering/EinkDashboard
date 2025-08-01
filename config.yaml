@@ -1,9 +1,9 @@
 clock:
   refresh_interval_seconds: 60
   font_path: fonts/thirteen-pixel-fonts/ThirteenPixelFontsRegular-wjR3.ttf
-  font_size: 10
+  font_size: 36
   use_24hr: true
-  show_date: false
+  show_date: true
 current_dashboard: clock
 stocks:
   symbols:
