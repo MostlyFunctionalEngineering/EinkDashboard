@@ -1,7 +1,7 @@
 refresh_interval_minutes: 1
 
 assets:
-  font: Fonts/thirteen-pixel-fonts/3DThirteenPixelFontsRegular-2dPv.ttf   # Or another actual file path you confirm
+  font: Fonts/thirteen-pixel-fonts/ThirteenPixelFontsRegular-wjR3.ttf   # Or another actual file path you confirm
   logo: YouTube_Logo_68x48.png
   background: 250x122_Square_With_Shadow_Background.png       # Optional
 
