@@ -70,9 +70,10 @@ def render(epd, config):
             time_y = (width - time_h) // 2
             draw_text.text((time_x, time_y), time_str, font=time_font, fill=text_color)
 
-        # Composite text onto black_img
-        mask = text_layer if text_color == 0 else ImageOps.invert(text_layer)
-        black_img = Image.composite(text_layer, black_img, mask)
+        # Create binary mask from text content (text = white, background = black)
+        mask = text_layer.point(lambda p: 255 if p != (255 if invert else 0) else 0, mode='1')
+        black_img.paste(text_layer, (0, 0), mask)
+
 
         logger.debug("Sending image to display")
         epd.display(epd.getbuffer(black_img), epd.getbuffer(red_img))
