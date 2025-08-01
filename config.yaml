@@ -1,6 +1,6 @@
 clock:
   refresh_interval_seconds: 60
-  font_path: fonts/ansela-pixel-font/AnselaPixelDemoRegular-BLjX5.otf
+  font_path: fonts/thirteen-pixel-fonts/ThirteenPixelFontsRegular-wjR3.ttf
   font_size: 10
   use_24hr: true
   show_date: false
