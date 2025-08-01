@@ -1,5 +1,5 @@
 from datetime import datetime
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageOps
 import os
 import logging
 
@@ -40,7 +40,10 @@ def render(epd, config):
         # Paste background image if present
         if bg_path and os.path.exists(bg_path):
             try:
-                background = Image.open(bg_path).convert('1').resize((height, width))
+                background = Image.open(bg_path).convert('L').resize((height, width))
+                if invert:
+                    background = ImageOps.invert(background)
+                background = background.convert('1')
                 black_img.paste(background)
                 logger.debug(f"Pasted background from {bg_path}")
             except Exception as e:
@@ -76,7 +79,6 @@ def render(epd, config):
         # Always paste black text for visibility, regardless of inversion
         text_bitmap = Image.new('1', (height, width), 0)
         black_img.paste(text_bitmap, (0, 0), mask)
-
 
         logger.debug("Sending image to display")
         epd.display(epd.getbuffer(black_img), epd.getbuffer(red_img))
