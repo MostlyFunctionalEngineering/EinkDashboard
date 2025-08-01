@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+<head>
+  <title>Edit Config</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    textarea {
+      width: 100%;
+      max-width: 1000px;
+      font-family: monospace;
+      white-space: pre;
+      box-sizing: border-box;
+    }
+  </style>
+</head>
+<body>
+  <h1>Edit config.yaml</h1>
+  <form method="POST">
+    <textarea name="config" rows="30">{{ config }}</textarea><br>
+    <button type="submit">Save</button>
+  </form>
+  <a href="{{ url_for('index') }}">Back to Dashboard Selector</a>
+</body>
+</html>

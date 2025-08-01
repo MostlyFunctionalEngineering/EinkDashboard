@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dashboard Selector</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <h1>Select Dashboard</h1>
+  <form method="POST">
+    <label for="dashboard">Dashboard:</label>
+    <select id="dashboard" name="dashboard">
+      <option value="clock">Clock</option>
+      <option value="youtube">YouTube</option>
+      <option value="weather">Weather</option>
+      <option value="stocks">Stocks</option>
+    </select>
+    <br>
+    <button type="submit">Set</button>
+  </form>
+  <a href="/edit">Edit Config</a>
+</body>
+</html>
