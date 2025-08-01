@@ -31,7 +31,6 @@ def sleep_for_dashboard(dashboard_name, interval):
         time.sleep(interval)
 
 def main():
-    setup_logging(config)
     epd = epd2in13b_V4.EPD()
     epd.init()    
 
@@ -39,6 +38,7 @@ def main():
         while True:
             config = load_config()
             current = config.get('current_dashboard', 'clock')
+            setup_logging(config)
             logging.debug(f"Selected dashboard: {current}")
             try:
                 show_dashboard(current, epd, config)
