@@ -34,8 +34,7 @@ def render(epd, config):
             draw_black.text((10, 60), date_str, font=font, fill=0)
 
         epd.display(epd.getbuffer(black_img), epd.getbuffer(Image.new('1', (width, height), 255)))
-        epd.sleep()
-        logger.debug("Clock dashboard rendered and display set to sleep")
+        logger.debug("Clock dashboard rendered")
 
     except Exception as e:
         logger.exception(f"Clock rendering failed: {e}")
