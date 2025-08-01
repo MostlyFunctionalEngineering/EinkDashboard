@@ -3,7 +3,7 @@
 
 import os, sys, time, logging
 from PIL import Image
-from waveshare_epd import epd2in13b_V4
+import lib.epd2in13b_V4 as epd2in13b_V4
 
 # Setup logging
 logging.basicConfig(
