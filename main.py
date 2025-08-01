@@ -90,8 +90,8 @@ try:
 
     # Read BMP full frame
     logging.info("3. Display full-frame BMP")
-    bmp_path = os.path.join(PIC_DIR, '46x46_Frame.png')
-    img = load_image_safe(os.path.join(PIC_DIR, '46x46_Frame.png'))
+    bmp_path = os.path.join(PIC_DIR, '')
+    img = load_image_safe(os.path.join(PIC_DIR, '250x122_Geometric_Pattern.png'))
     epd.display(epd.getbuffer(img), epd.getbuffer(img))
     time.sleep(2)
 
@@ -99,7 +99,7 @@ try:
     logging.info("4. Display windowed BMP")
     blackimage1 = Image.new('1', (epd.height, epd.width), 255)
     redimage1 = Image.new('1', (epd.height, epd.width), 255)
-    corner_img = load_image_safe(os.path.join(PIC_DIR, 'Geometric_Pattern.png'))
+    corner_img = load_image_safe(os.path.join(PIC_DIR, '46x46_Frame.png'))
     # Make sure it fits (optionally scale smaller)
     if corner_img.size[0] > epd.height or corner_img.size[1] > epd.width:
         logging.warning("Corner image too large, scaling down to fit")
