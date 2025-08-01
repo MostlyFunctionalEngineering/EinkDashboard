@@ -12,8 +12,8 @@ import lib.epd2in13b_V4 as epd2in13b_V4
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 CONFIG_PATH = os.path.join(SCRIPT_DIR, 'config.yaml')
 DATA_PATH = os.path.join(SCRIPT_DIR, 'data', 'subscribers.csv')
-ASSETS_PATH = os.path.join(SCRIPT_DIR, 'assets')
-LOGO_PATH = os.path.join(ASSETS_PATH, 'youtube_logo.bmp')
+ASSETS_DIR = os.path.join(SCRIPT_DIR, 'assets')
+LOGO_PATH = os.path.join(ASSETS_DIR, 'youtube_logo.bmp')
 FONT_PATH = os.path.join(SCRIPT_DIR, 'pic', 'Font.ttc')
 
 logging.basicConfig(level=logging.INFO)
@@ -25,6 +25,16 @@ with open(CONFIG_PATH, 'r') as f:
 API_KEY = os.getenv("YOUTUBE_API_KEY") or config['api_key']
 CHANNEL_ID = os.getenv("YOUTUBE_CHANNEL_ID") or config['channel_id']
 REFRESH_MINUTES = config.get('refresh_interval_minutes', 1)
+ASSETS_CONFIG = config.get('assets', {})
+
+FONT_PATH = os.path.join(ASSETS_DIR, ASSETS_CONFIG.get('font', 'Fonts/thirteen-pixel-fonts/default.ttf'))
+LOGO_PATH = os.path.join(ASSETS_DIR, ASSETS_CONFIG.get('logo', 'YouTube_Logo_68x48.png'))
+BG_PATH   = os.path.join(ASSETS_DIR, ASSETS_CONFIG.get('background', '')) or None
+
+for label, path in [('font', FONT_PATH), ('logo', LOGO_PATH), ('background', BG_PATH)]:
+    if path and not os.path.exists(path):
+        logging.warning(f"{label.capitalize()} file not found: {path}")
+
 
 # Safety Check
 if not API_KEY or not CHANNEL_ID:
@@ -78,13 +88,28 @@ def draw_dashboard(epd, count, daily, weekly, monthly):
     draw_black = ImageDraw.Draw(black_img)
     draw_red = ImageDraw.Draw(red_img)
 
-    # Fonts
-    font_small = ImageFont.truetype(FONT_PATH, 14)
-    font_large = ImageFont.truetype(FONT_PATH, 20)
+    # Background (optional)
+    if BG_PATH:
+        try:
+            bg = Image.open(BG_PATH).resize((epd.height, epd.width))
+            black_img.paste(bg, (0, 0))
+        except Exception as e:
+            logging.warning(f"Background not loaded: {e}")
 
-    # Draw YouTube logo
-    logo = Image.open(LOGO_PATH)
-    red_img.paste(logo, (5, 5))
+    # Fonts
+    try:
+        font_small = ImageFont.truetype(FONT_PATH, 14)
+        font_large = ImageFont.truetype(FONT_PATH, 20)
+    except OSError:
+        logging.warning(f"Failed to load font at {FONT_PATH}, using default")
+        font_small = font_large = ImageFont.load_default()
+
+    # Logo
+    try:
+        logo = Image.open(LOGO_PATH)
+        red_img.paste(logo, (5, 5))
+    except Exception as e:
+        logging.warning(f"Logo not loaded: {e}")
 
     # Draw counts
     draw_black.text((60, 5), f"{count} subs", font=font_large, fill=0)
@@ -95,6 +120,7 @@ def draw_dashboard(epd, count, daily, weekly, monthly):
     # Display
     epd.display(epd.getbuffer(black_img), epd.getbuffer(red_img))
     epd.sleep()
+
 
 def main():
     epd = epd2in13b_V4.EPD()
