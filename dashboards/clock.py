@@ -28,18 +28,19 @@ def render(epd, config):
     black_img = Image.new('1', (width, height), 255)
     draw_black = ImageDraw.Draw(black_img)
 
-    # Measure and center time
-    time_w, time_h = draw_black.textsize(time_str, font=font)
+    # Center time text
+    time_w, time_h = font.getsize(time_str)
     time_x = (width - time_w) // 2
     time_y = (height // 2 - time_h) if not show_date else (height // 3 - time_h // 2)
     draw_black.text((time_x, time_y), time_str, font=font, fill=0)
 
-    # Draw date if needed
+    # Optional date
     if date_str:
-        date_w, date_h = draw_black.textsize(date_str, font=font)
+        date_w, date_h = font.getsize(date_str)
         date_x = (width - date_w) // 2
         date_y = (2 * height // 3 - date_h // 2)
         draw_black.text((date_x, date_y), date_str, font=font, fill=0)
+
 
     epd.display(epd.getbuffer(black_img), epd.getbuffer(Image.new('1', (width, height), 255)))
     epd.sleep()
