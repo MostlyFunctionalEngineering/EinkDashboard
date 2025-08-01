@@ -53,19 +53,20 @@ def main():
     try:
         while True:
             mtime = os.path.getmtime(CONFIG_PATH)
-            if mtime != last_mtime:
+            config_changed = mtime != last_mtime
+            if config_changed:
                 config = load_config()
-                last_mtime = mtime
                 logging.debug("Config file changed, reloading")
 
             current = config.get('current_dashboard', 'clock')
             logging.debug(f"Selected dashboard: {current}")
 
-            if current != last_dashboard or mtime != last_mtime:
+            if current != last_dashboard or config_changed:
                 try:
                     show_dashboard(current, epd, config)
                     logging.info(f"Rendered dashboard: {current}")
                     last_dashboard = current
+                    last_mtime = mtime
                 except Exception as e:
                     logging.exception(f"Failed to render dashboard '{current}': {e}")
 
