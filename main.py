@@ -80,14 +80,17 @@ def main():
                     show_dashboard(current, epd, config)
                     logging.info(f"Rendered dashboard: {current}")
                     last_dashboard = current
-                    last_mtime = mtime
-                    last_mtime_ref[0] = mtime
                 except Exception as e:
                     logging.exception(f"Failed to render dashboard '{current}': {e}")
 
             interval = get_refresh_interval(current, config)
             logging.debug(f"Sleeping for {interval} seconds")
             sleep_for_dashboard(current, interval, last_mtime_ref)
+
+            # Only update mtime *after* sleep, so changes during sleep can be caught
+            last_mtime = os.path.getmtime(CONFIG_PATH)
+            last_mtime_ref[0] = last_mtime
+
 
     except KeyboardInterrupt:
         logging.info("Interrupted by user. Cleaning up.")
