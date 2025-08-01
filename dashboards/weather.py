@@ -114,8 +114,7 @@ def render(epd, config):
         date_fmt = cfg.get('date_format', '%a %b %d')
 
         white = 255 if not invert else 0
-        black = 0 if not invert else 255
-        text_color = black
+        text_color = 0
 
         font = ImageFont.truetype(font_path, font_size)
         small_font = ImageFont.truetype(font_path, int(font_size * 0.6))
