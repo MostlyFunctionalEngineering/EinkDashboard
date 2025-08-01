@@ -67,7 +67,7 @@ def fetch_weather(lat, lon, forecast_mode, use_celsius):
 def render(epd, config):
     try:
         logger.debug("Rendering weather dashboard")
-        width, height = epd.width, epd.height
+        height, width = epd.width, epd.height #I know this is backwards, it should be
 
         # Config values
         cfg = config.get('weather', {})
@@ -145,10 +145,7 @@ def render(epd, config):
 
         # Push to screen
         logger.debug("Sending image to display")
-        rotated_black = black_img.rotate(270, expand=True)
-        rotated_red = red_img.rotate(270, expand=True)
-        epd.display(epd.getbuffer(rotated_black), epd.getbuffer(rotated_red))
-
+        epd.display(epd.getbuffer(black_img), epd.getbuffer(red_img))
         logger.debug("Weather dashboard rendered")
 
     except Exception as e:
