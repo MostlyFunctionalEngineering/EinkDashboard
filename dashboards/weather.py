@@ -19,7 +19,7 @@ def render(epd, config):
 
         # Sample data
         temperature = "23°C"
-        icon_path = "assets/64x64_Weather_Icons/cloudy.png"
+        icon_path = "assets/64x64_Weather_Icons/cloudy.bmp"
 
         # Load font
         font = ImageFont.truetype(font_path, font_size)
