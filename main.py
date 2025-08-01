@@ -31,8 +31,9 @@ def sleep_for_dashboard(dashboard_name, interval):
         time.sleep(interval)
 
 def main():
+    setup_logging(config)
     epd = epd2in13b_V4.EPD()
-    epd.init()
+    epd.init()    
 
     try:
         while True:
