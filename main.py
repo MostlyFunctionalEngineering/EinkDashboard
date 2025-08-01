@@ -64,9 +64,10 @@ def main():
 
             if current == 'clock':
                 this_minute = datetime.now().strftime('%Y-%m-%d %H:%M')
-                if this_minute != last_minute:
+                if force_refresh or this_minute != last_minute:
                     should_render = True
                     last_minute = this_minute
+
             else:
                 interval = get_refresh_interval(current, config)
                 if current != last_dashboard:
