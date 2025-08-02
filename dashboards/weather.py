@@ -172,7 +172,7 @@ def render(epd, config):
             hum_str = f"{humidity}%RH"
             bbox = font.getbbox(temp_str)
             temp_w = bbox[2] - bbox[0]
-            draw.text((90 + temp_w + 10, 36), hum_str, font=small_font, fill=text_color)
+            draw.text((90 + temp_w + 10, 36), hum_str, font=font, fill=text_color)
 
         # Forecast (bottom), skipping today
         forecast_y = height - 60
