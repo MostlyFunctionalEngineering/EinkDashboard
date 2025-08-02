@@ -72,8 +72,13 @@ def render(epd, config):
 
         # Right-aligned text block with wrapping logic
         sub_str = f"{sub_count:,} Subscribers"
-        channel_w, channel_h = channel_font.getsize(channel_name)
-        subs_w, subs_h = subs_font.getsize(sub_str)
+        channel_bbox = channel_font.getbbox(channel_name)
+        channel_w = channel_bbox[2] - channel_bbox[0]
+        channel_h = channel_bbox[3] - channel_bbox[1]
+
+        subs_bbox = subs_font.getbbox(sub_str)
+        subs_w = subs_bbox[2] - subs_bbox[0]
+        subs_h = subs_bbox[3] - subs_bbox[1]
 
         if channel_w > height - 12:
             # Name too long: wrap to two lines
