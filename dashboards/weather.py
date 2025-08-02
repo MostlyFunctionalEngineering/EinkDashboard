@@ -157,13 +157,13 @@ def render(epd, config):
         unit = "°C" if use_celsius else "°F"
         temp = round(current["temperature"])
         feels_like = round(forecast["apparent_temperature"][0]) if forecast_mode == "hourly" else temp
-        draw.text((90, 20), f"{temp}{unit}", font=font, fill=text_color)
-        draw.text((90, 20 + font_size + 2), f"Feels like {feels_like}{unit}", font=small_font, fill=text_color)
+        draw.text((90, 36), f"{temp}{unit}", font=font, fill=text_color)
+        draw.text((90, 36 + font_size + 2), f"Feels like {feels_like}{unit}", font=small_font, fill=text_color)
 
         # Forecast (bottom)
-        forecast_y = height - 50
-        spacing = (width - 8) // 5
-        for i in range(5):
+        forecast_y = height - 65
+        spacing = 52
+        for i in range(3):
             if forecast_mode == "hourly":
                 t = forecast["time"][i]
                 f_temp = round(forecast["temperature_2m"][i])
@@ -175,7 +175,7 @@ def render(epd, config):
                 f_code = forecast["weathercode"][i]
                 label = datetime.fromisoformat(t).strftime("%a")
 
-            x = 4 + i * spacing
+            x = width - (3 - i) * spacing
             icon_path = icon_path_for_code(f_code, night)
             icon = Image.open(icon_path).convert('1').resize((40, 40))
             black_img.paste(icon, (x, forecast_y))
