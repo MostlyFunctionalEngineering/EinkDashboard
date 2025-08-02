@@ -172,10 +172,11 @@ YOUTUBE_CHANNEL_ID=UCPqrW35BnRePrjOEAL8YBVg
 FINNHUB_API_KEY=abc123defghijklmnop
 ```
 
-**⚠️ IMPORTANT**: 
+**IMPORTANT**: 
 - Replace the example keys with your actual API keys
 - Keep this file secret! Never share it or commit it to version control
 - The `.env` file should be in the same directory as `main.py`
+- **I AM NOT RESPONSIBLE FOR THIS MAKING TOO MANY API CALLS! PLEASE DOUBLE CHECK THAT YOUR CONFIG SETTINGS DON'T MAKE TOO MANY API CALLS!**
 
 *Note: The clock and weather dashboards work without API keys, so you can test those first!*
 
