@@ -183,14 +183,39 @@ def render(epd, config):
             draw.text((90 + temp_w + 10, 36), hum_str, font=font, fill=text_color)
 
         # Wind speed and direction (bottom-left corner)
-        wind_speed = round(current.get("windspeed", 0))
+        wind_kmh = current.get("windspeed", 0)
         wind_dir = current.get("winddirection", 0)
-        wind_compass = degrees_to_compass(wind_dir)
-        wind_str = f"{wind_speed} km/h {wind_compass}" if use_celsius else f"{wind_speed} mph {wind_compass}"
 
-        bbox = font.getbbox(wind_str)
-        wind_w, wind_h = bbox[2] - bbox[0], bbox[3] - bbox[1]
-        draw.text((6, height - wind_h - 4), wind_str, font=font, fill=text_color)
+        wind_knots = round(wind_kmh * 0.539957)
+        wind_compass = degrees_to_compass(wind_dir)
+
+        # Format text
+        speed_str = str(wind_knots)
+        units_str = "kts"
+        dir_str = wind_compass
+
+        # Text dimensions
+        speed_bbox = font.getbbox(speed_str)
+        speed_w = speed_bbox[2] - speed_bbox[0]
+        speed_h = speed_bbox[3] - speed_bbox[1]
+
+        units_bbox = small_font.getbbox(units_str)
+        dir_bbox = small_font.getbbox(dir_str)
+        units_h = units_bbox[3] - units_bbox[1]
+        dir_h = dir_bbox[3] - dir_bbox[1]
+        label_spacing = 2
+
+        # Anchor position (bottom-left, raised 6px)
+        margin = 6
+        y_anchor = height - speed_h - margin - 6  # raise entire block 6px
+
+        # Draw wind speed
+        draw.text((margin, y_anchor), speed_str, font=font, fill=text_color)
+
+        # Draw units and direction stacked to the right
+        x_labels = margin + speed_w + 6
+        draw.text((x_labels, y_anchor), units_str, font=small_font, fill=text_color)
+        draw.text((x_labels, y_anchor + units_h + label_spacing), dir_str, font=small_font, fill=text_color)
 
         # Forecast (bottom), skipping today
         forecast_y = height - 60
