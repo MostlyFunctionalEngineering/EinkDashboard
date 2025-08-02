@@ -223,6 +223,7 @@ def render(epd, config):
         # Forecast (bottom), skipping today
         forecast_y = height - 60
         spacing = 52
+        icon_size = 40  # pixels
         for i in range(1, 4):
             if forecast_mode == "hourly":
                 t = forecast["time"][i]
@@ -234,14 +235,28 @@ def render(epd, config):
                 f_temp = round(forecast["temperature_2m_max"][i])
                 f_code = forecast["weathercode"][i]
                 label = datetime.fromisoformat(t).strftime("%a")
-            logger.debug(f"Forecast {i}: code={f_code}, temp={f_temp}, label={label}")
 
             x = width - (4 - i) * spacing
+
+            # Forecast icon
             icon_path = icon_path_for_code(f_code, False)
-            icon = Image.open(icon_path).convert('1').resize((40, 40))
+            icon = Image.open(icon_path).convert('1').resize((icon_size, icon_size))
             black_img.paste(icon, (x, forecast_y))
-            draw.text((x, forecast_y + 42), f"{f_temp}{unit}", font=small_font, fill=text_color)
-            draw.text((x, forecast_y + 56), label, font=small_font, fill=text_color)
+
+            # Forecast text layout
+            temp_str = f"{f_temp}{unit}"
+            date_bbox = small_font.getbbox(label)
+            temp_bbox = small_font.getbbox(temp_str)
+
+            date_h = date_bbox[3] - date_bbox[1]
+            temp_h = temp_bbox[3] - temp_bbox[1]
+
+            date_y = forecast_y + icon_size + 2
+            temp_y = date_y + date_h + 2
+
+            draw.text((x, date_y), label, font=small_font, fill=text_color)
+            draw.text((x, temp_y), temp_str, font=small_font, fill=text_color)
+
 
         # Rotate and invert if needed
         rotated_black = black_img.rotate(90, expand=True)
