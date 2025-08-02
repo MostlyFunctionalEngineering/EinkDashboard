@@ -19,6 +19,7 @@ def render(epd, config):
         font_path = cfg.get('font_path', '/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf')
         font_size = cfg.get('font_size', 18)
         invert = cfg.get('invert_colors', False)
+        show_history = cfg.get('show_history', False)
 
         white = 255 if not invert else 0
         text_color = 255 if invert else 0
@@ -57,11 +58,36 @@ def render(epd, config):
 
         # Save to CSV
         os.makedirs("data", exist_ok=True)
-        with open("data/subscribers.csv", "a", newline="") as f:
+        csv_path = "data/subscribers.csv"
+        with open(csv_path, "a", newline="") as f:
             writer = csv.writer(f)
             writer.writerow([datetime.now().isoformat(), sub_count])
 
-        # Prepare text
+        # Draw history chart if enabled
+        if show_history and os.path.exists(csv_path):
+            try:
+                with open(csv_path, "r") as f:
+                    reader = list(csv.reader(f))[-225:]
+                    values = [int(row[1]) for row in reader if len(row) == 2]
+                if values:
+                    chart_w, chart_h = 225, 100
+                    chart_x, chart_y = 6, width - chart_h - 6
+                    max_val = max(values)
+                    min_val = min(values)
+                    scale = (chart_h - 3) / (max_val - min_val or 1)
+                    points = [
+                        (chart_x + i, chart_y + chart_h - 1 - int((v - min_val) * scale))
+                        for i, v in enumerate(values)
+                    ]
+                    draw = ImageDraw.Draw(black_img)
+                    for i in range(1, len(points)):
+                        draw.line([points[i - 1], points[i]], fill=0)
+                    for x, y in points:
+                        draw.line([(x, chart_y + chart_h - 1), (x, y + 1)], fill=0)
+            except Exception as e:
+                logger.warning(f"Failed to draw history plot: {e}")
+
+        # Prepare subscriber text
         sub_str = f"{sub_count:,} Subscribers"
         subs_font = ImageFont.truetype(font_path, font_size)
 

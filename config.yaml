@@ -45,8 +45,9 @@ weather:
   # background: null   # No background
 youtube:
   font_path: fonts/home-video-font/HomeVideo-BLG6G.ttf 
-  font_size: 24
+  font_size: 22
   timeframe_days: 30
+  show_history: true
   invert_colors: false
   refresh_interval_seconds: 60
   background: assets/Borders_and_Logos/250x122_Rounded_Frame_With_Shadow.bmp
