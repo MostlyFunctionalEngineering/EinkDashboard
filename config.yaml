@@ -1,4 +1,4 @@
-current_dashboard: stocks
+current_dashboard: youtube
 clock:
   invert_colors: true
   font_path: fonts/home-video-font/HomeVideo-BLG6G.ttf
@@ -44,7 +44,7 @@ weather:
   # background: assets/Borders_and_Logos/250x122_Sqaure_With_Shadow_Background.bmp
   # background: null   # No background
 youtube:
-  font_path: fonts/ansela-pixel-font/AnselaPixelDemoRegular-BLjX5.otf
+  font_path: fonts/home-video-font/HomeVideo-BLG6G.ttf 
   font_size: 12
   timeframe_days: 30
   invert_colors: false
