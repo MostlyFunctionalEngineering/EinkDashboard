@@ -169,8 +169,9 @@ def render(epd, config):
         temp_str = f"{temp}{unit}"
         draw.text((90, 36), temp_str, font=font, fill=text_color)
         if humidity is not None:
-            hum_str = f"{humidity}% RH"
-            temp_w, _ = font.getsize(temp_str)
+            hum_str = f"{humidity}%RH"
+            bbox = font.getbbox(temp_str)
+            temp_w = bbox[2] - bbox[0]
             draw.text((90 + temp_w + 10, 36), hum_str, font=small_font, fill=text_color)
 
         # Forecast (bottom), skipping today
