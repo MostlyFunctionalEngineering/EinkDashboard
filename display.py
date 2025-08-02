@@ -1,9 +1,10 @@
-from dashboards import clock, weather, stocks
+from dashboards import clock, weather, stocks, youtube
 
 dashboards = {
     "clock": clock.render,
     "weather": weather.render,
-    "stocks": stocks.render
+    "stocks": stocks.render,
+    "youtube": youtube.render
 }
 
 def show_dashboard(name, epd, config):

@@ -47,7 +47,9 @@ youtube:
   font_path: fonts/ansela-pixel-font/AnselaPixelDemoRegular-BLjX5.otf
   font_size: 12
   timeframe_days: 30
-  refresh_interval_seconds: 1800
+  invert_colors: false
+  refresh_interval_seconds: 60
+  background: assets/Borders_and_Logos/250x122_Rounded_Frame_With_Shadow.bmp
 logging:
   level: DEBUG #"DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"
 
