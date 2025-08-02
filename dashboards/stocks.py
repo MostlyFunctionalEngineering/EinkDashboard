@@ -16,7 +16,7 @@ def render(epd, config):
         font_path = stock_cfg.get('font_path', '/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf')
         font_size = stock_cfg.get('font_size', 18)
         invert = stock_cfg.get('invert_colors', False)
-        symbols = stock_cfg.get('symbols', [])[:10]
+        symbols = stock_cfg.get('symbols', [])[:8]
 
         white = 255 if not invert else 0
         text_color = 255 if invert else 0
