@@ -81,7 +81,7 @@ def render(epd, config):
         black_img.paste(Image.new('1', (height, width), text_color), (0, 0), mask)
 
         logger.debug("Sending image to display")
-        epd.display(epd.getbuffer(black_img), epd.getbuffer(red_img))
+        epd.display(epd.getbuffer(black_img))
         logger.debug("Clock dashboard rendered")
 
     except Exception as e:

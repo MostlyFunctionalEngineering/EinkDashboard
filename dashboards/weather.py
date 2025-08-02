@@ -130,7 +130,6 @@ def render(epd, config):
         night = is_night(now, sunrise, sunset)
 
         black_img = Image.new('1', (width, height), white)
-        red_img = Image.new('1', (width, height), 255)
 
         if bg_path and os.path.exists(bg_path):
             try:
@@ -185,12 +184,11 @@ def render(epd, config):
 
         # Rotate and invert if needed
         rotated_black = black_img.rotate(90, expand=True)
-        rotated_red = red_img.rotate(90, expand=True)
 
         if invert:
             rotated_black = Image.eval(rotated_black, lambda px: 255 - px)
 
-        epd.display(epd.getbuffer(rotated_black), epd.getbuffer(rotated_red))
+        epd.display(epd.getbuffer(rotated_black))
         logger.debug("Weather dashboard rendered")
 
     except Exception as e:
