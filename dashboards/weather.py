@@ -128,6 +128,7 @@ def render(epd, config):
         sunrise = weather["daily"]["sunrise"][0]
         sunset = weather["daily"]["sunset"][0]
         
+        now = datetime.now()
         hourly = weather["hourly"]
         now_iso_hour = now.replace(minute=0, second=0, microsecond=0).isoformat()
         try:
@@ -136,7 +137,6 @@ def render(epd, config):
         except ValueError:
             humidity = None
 
-        now = datetime.now()
         night = is_night(now, sunrise, sunset)
 
         black_img = Image.new('1', (width, height), white)
