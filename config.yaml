@@ -1,4 +1,12 @@
 current_dashboard: youtube
+cycle:
+  enabled: false
+  interval_minutes: 5
+  dashboards:
+    clock: true
+    youtube: true
+    weather: true
+    stocks: true
 clock:
   invert_colors: true
   font_path: fonts/home-video-font/HomeVideo-BLG6G.ttf

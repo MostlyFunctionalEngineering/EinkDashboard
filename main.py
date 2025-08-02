@@ -37,6 +37,25 @@ def get_refresh_interval(dashboard_name, config):
         return None
     return config.get(dashboard_name, {}).get('refresh_interval_seconds', 60)
 
+def get_enabled_dashboards(config):
+    """Get list of dashboards enabled for cycling"""
+    cycle_config = config.get('cycle', {})
+    enabled_dashboards = cycle_config.get('dashboards', {})
+    return [name for name, enabled in enabled_dashboards.items() if enabled]
+
+def get_next_dashboard(current_dashboard, enabled_dashboards):
+    """Get the next dashboard in the cycle"""
+    if not enabled_dashboards:
+        return current_dashboard
+    
+    try:
+        current_index = enabled_dashboards.index(current_dashboard)
+        next_index = (current_index + 1) % len(enabled_dashboards)
+        return enabled_dashboards[next_index]
+    except ValueError:
+        # Current dashboard not in enabled list, return first enabled
+        return enabled_dashboards[0] if enabled_dashboards else current_dashboard
+
 def main():
     config = load_config()
     setup_logging(config)
@@ -50,15 +69,36 @@ def main():
     last_dashboard = None
     last_minute = None
     last_rendered = 0
+    last_cycle_time = time.time()
 
     try:
         while True:
             config = load_config()
             current = config.get('current_dashboard', 'clock')
-            logging.debug(f"Selected dashboard: {current}")
-
+            
+            # Check for cycling
+            cycle_config = config.get('cycle', {})
+            cycle_enabled = cycle_config.get('enabled', False)
+            cycle_interval_minutes = cycle_config.get('interval_minutes', 5)
+            
             now = time.time()
             force_refresh = check_and_clear_flag()
+            
+            # Handle automatic cycling
+            if cycle_enabled and (now - last_cycle_time >= cycle_interval_minutes * 60):
+                enabled_dashboards = get_enabled_dashboards(config)
+                if enabled_dashboards:
+                    next_dashboard = get_next_dashboard(current, enabled_dashboards)
+                    if next_dashboard != current:
+                        config['current_dashboard'] = next_dashboard
+                        # Save the updated config
+                        with open(CONFIG_PATH, 'w') as f:
+                            yaml.dump(config, f)
+                        current = next_dashboard
+                        logging.info(f"Cycled to dashboard: {current}")
+                last_cycle_time = now
+
+            logging.debug(f"Selected dashboard: {current}")
 
             should_render = False
 

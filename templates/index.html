@@ -5,18 +5,76 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-  <h1>Select Dashboard</h1>
-  <form method="POST">
-    <label for="dashboard">Dashboard:</label>
-    <select id="dashboard" name="dashboard">
-      <option value="clock">Clock</option>
-      <option value="youtube">YouTube</option>
-      <option value="weather">Weather</option>
-      <option value="stocks">Stocks</option>
-    </select>
-    <br>
-    <button type="submit">Set</button>
-  </form>
-  <a href="/edit">Edit Config</a>
+  <h1>Dashboard Control</h1>
+  
+  <div class="section">
+    <h2>Manual Dashboard Selection</h2>
+    <form method="POST">
+      <label for="dashboard">Dashboard:</label>
+      <select id="dashboard" name="dashboard">
+        <option value="clock" {% if current == 'clock' %}selected{% endif %}>Clock</option>
+        <option value="youtube" {% if current == 'youtube' %}selected{% endif %}>YouTube</option>
+        <option value="weather" {% if current == 'weather' %}selected{% endif %}>Weather</option>
+        <option value="stocks" {% if current == 'stocks' %}selected{% endif %}>Stocks</option>
+      </select>
+      <button type="submit">Set Dashboard</button>
+    </form>
+  </div>
+
+  <div class="section">
+    <h2>Auto-Cycling Settings</h2>
+    <form method="POST">
+      <div class="toggle-group">
+        <label class="toggle-label">
+          <input type="checkbox" name="cycle_enabled" {% if cycle_enabled %}checked{% endif %}>
+          <span class="toggle-text">Enable Auto-Cycling</span>
+        </label>
+      </div>
+
+      <div class="setting-group">
+        <label for="cycle_interval">Cycle Interval (minutes):</label>
+        <input type="number" id="cycle_interval" name="cycle_interval" 
+               value="{{ cycle_interval }}" min="1" max="1440">
+      </div>
+
+      <div class="dashboard-toggles">
+        <h3>Dashboards in Cycle:</h3>
+        <div class="toggle-group">
+          <label class="toggle-label">
+            <input type="checkbox" name="enable_clock" 
+                   {% if dashboard_enables.get('clock', True) %}checked{% endif %}>
+            <span class="toggle-text">Clock</span>
+          </label>
+        </div>
+        <div class="toggle-group">
+          <label class="toggle-label">
+            <input type="checkbox" name="enable_youtube" 
+                   {% if dashboard_enables.get('youtube', True) %}checked{% endif %}>
+            <span class="toggle-text">YouTube</span>
+          </label>
+        </div>
+        <div class="toggle-group">
+          <label class="toggle-label">
+            <input type="checkbox" name="enable_weather" 
+                   {% if dashboard_enables.get('weather', True) %}checked{% endif %}>
+            <span class="toggle-text">Weather</span>
+          </label>
+        </div>
+        <div class="toggle-group">
+          <label class="toggle-label">
+            <input type="checkbox" name="enable_stocks" 
+                   {% if dashboard_enables.get('stocks', True) %}checked{% endif %}>
+            <span class="toggle-text">Stocks</span>
+          </label>
+        </div>
+      </div>
+
+      <button type="submit" class="save-button">Save Cycling Settings</button>
+    </form>
+  </div>
+
+  <div class="section">
+    <a href="/edit" class="edit-link">Edit Raw Config</a>
+  </div>
 </body>
 </html>

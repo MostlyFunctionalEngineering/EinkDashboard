@@ -21,10 +21,37 @@ def save_config(cfg):
 def index():
     config = load_config()
     if request.method == 'POST':
-        config['current_dashboard'] = request.form['dashboard']
+        # Handle dashboard selection
+        if 'dashboard' in request.form:
+            config['current_dashboard'] = request.form['dashboard']
+        
+        # Handle cycling settings
+        if 'cycle_enabled' in request.form:
+            cycle_config = config.setdefault('cycle', {})
+            cycle_config['enabled'] = request.form.get('cycle_enabled') == 'on'
+            
+            # Update cycle interval
+            try:
+                interval = int(request.form.get('cycle_interval', 5))
+                cycle_config['interval_minutes'] = max(1, interval)  # Minimum 1 minute
+            except (ValueError, TypeError):
+                cycle_config['interval_minutes'] = 5
+            
+            # Update dashboard enables
+            dashboards_config = cycle_config.setdefault('dashboards', {})
+            for dashboard in ['clock', 'youtube', 'weather', 'stocks']:
+                dashboards_config[dashboard] = request.form.get(f'enable_{dashboard}') == 'on'
+        
         save_config(config)
         return redirect('/')
-    return render_template('index.html', current=config.get('current_dashboard', 'clock'))
+    
+    # Get cycle configuration for template
+    cycle_config = config.get('cycle', {})
+    return render_template('index.html', 
+                         current=config.get('current_dashboard', 'clock'),
+                         cycle_enabled=cycle_config.get('enabled', False),
+                         cycle_interval=cycle_config.get('interval_minutes', 5),
+                         dashboard_enables=cycle_config.get('dashboards', {}))
 
 @app.route('/edit', methods=['GET', 'POST'])
 def edit():
