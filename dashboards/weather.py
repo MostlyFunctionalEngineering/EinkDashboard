@@ -83,6 +83,14 @@ def zip_to_latlon(zip_code):
         logger.exception(f"ZIP to lat/lon failed for {zip_code}")
         raise
 
+def degrees_to_compass(deg):
+    dirs = [
+        "N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE",
+        "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"
+    ]
+    ix = round(deg / 22.5) % 16
+    return dirs[ix]
+
 def fetch_weather(lat, lon, forecast_mode, use_celsius):
     units = "celsius" if use_celsius else "fahrenheit"
     base_url = (
@@ -173,6 +181,16 @@ def render(epd, config):
             bbox = font.getbbox(temp_str)
             temp_w = bbox[2] - bbox[0]
             draw.text((90 + temp_w + 10, 36), hum_str, font=font, fill=text_color)
+
+        # Wind speed and direction (bottom-left corner)
+        wind_speed = round(current.get("windspeed", 0))
+        wind_dir = current.get("winddirection", 0)
+        wind_compass = degrees_to_compass(wind_dir)
+        wind_str = f"{wind_speed} km/h {wind_compass}" if use_celsius else f"{wind_speed} mph {wind_compass}"
+
+        bbox = font.getbbox(wind_str)
+        wind_w, wind_h = bbox[2] - bbox[0], bbox[3] - bbox[1]
+        draw.text((6, height - wind_h - 4), wind_str, font=font, fill=text_color)
 
         # Forecast (bottom), skipping today
         forecast_y = height - 60
