@@ -111,7 +111,7 @@ def render(epd, config):
         text_w = bbox[2] - bbox[0]
         text_h = bbox[3] - bbox[1]
 
-        x = height - text_w - 8
+        x = (height - text_w) // 2
         y = 4
 
         draw_text.text((x, y), sub_str, font=subs_font, fill=0)
