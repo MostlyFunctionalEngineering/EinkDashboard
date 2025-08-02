@@ -88,11 +88,8 @@ def fetch_weather(lat, lon, forecast_mode, use_celsius):
         f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}"
         f"&current_weather=true&timezone=auto"
         f"&daily=sunrise,sunset"
+        f"&hourly=temperature_2m,apparent_temperature,weathercode,relative_humidity_2m&temperature_unit={units}"
     )
-    if forecast_mode == "hourly":
-        base_url += f"&hourly=temperature_2m,apparent_temperature,weathercode,relative_humidity_2m&temperature_unit={units}"
-    else:
-        base_url += f"&daily=temperature_2m_max,temperature_2m_min,weathercode&temperature_unit={units}"
     r = requests.get(base_url)
     r.raise_for_status()
     return r.json()
@@ -122,11 +119,19 @@ def render(epd, config):
         weather = fetch_weather(lat, lon, forecast_mode, use_celsius)
 
         current = weather["current_weather"]
+        hourly = weather.get("hourly", {})
         forecast = weather["hourly"] if forecast_mode == "hourly" else weather["daily"]
-        humidity = forecast["relative_humidity_2m"][0] if forecast_mode == "hourly" else None
+
+        now = datetime.now()
+        now_iso_hour = now.replace(minute=0, second=0, microsecond=0).isoformat()
+        try:
+            humidity_index = hourly["time"].index(now_iso_hour)
+            humidity = round(hourly["relative_humidity_2m"][humidity_index])
+        except (ValueError, KeyError):
+            humidity = None
+
         sunrise = weather["daily"]["sunrise"][0]
         sunset = weather["daily"]["sunset"][0]
-        now = datetime.now()
         night = is_night(now, sunrise, sunset)
 
         black_img = Image.new('1', (width, height), white)
@@ -163,10 +168,10 @@ def render(epd, config):
             temp_w, _ = font.getsize(temp_str)
             draw.text((90 + temp_w + 10, 36), hum_str, font=small_font, fill=text_color)
 
-        # Forecast (bottom)
+        # Forecast (bottom), skipping today
         forecast_y = height - 60
         spacing = 52
-        for i in range(3):
+        for i in range(1, 4):
             if forecast_mode == "hourly":
                 t = forecast["time"][i]
                 f_temp = round(forecast["temperature_2m"][i])
@@ -178,8 +183,8 @@ def render(epd, config):
                 f_code = forecast["weathercode"][i]
                 label = datetime.fromisoformat(t).strftime("%a")
 
-            x = width - (3 - i) * spacing
-            icon_path = icon_path_for_code(f_code, night)
+            x = width - (4 - i) * spacing
+            icon_path = icon_path_for_code(f_code, False)
             icon = Image.open(icon_path).convert('1').resize((40, 40))
             black_img.paste(icon, (x, forecast_y))
             draw.text((x, forecast_y + 42), f"{f_temp}{unit}", font=small_font, fill=text_color)
