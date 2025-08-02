@@ -94,9 +94,12 @@ def render(epd, config):
                         points.append((px, py))
 
                     drawn_dates = set()
+                    last_t = times[-1].date()
+
                     for (x, y), t in zip(points, times):
                         t_date = t.date()
-                        if t_date not in drawn_dates:
+                        is_last = t_date == last_t and t == times[-1]
+                        if t_date not in drawn_dates or is_last:
                             draw.line([(x, chart_y + chart_h - 1), (x, y + 1)], fill=0)
                             drawn_dates.add(t_date)
 
