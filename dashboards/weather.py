@@ -86,8 +86,9 @@ def fetch_weather(lat, lon, forecast_mode, use_celsius):
     units = "celsius" if use_celsius else "fahrenheit"
     base_url = (
         f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}"
-        f"&current_weather=true&current=relative_humidity_2m&timezone=auto"
+        f"&current_weather=true&timezone=auto"
         f"&daily=sunrise,sunset"
+        f"&hourly=relative_humidity_2m"
     )
     if forecast_mode == "hourly":
         base_url += f"&hourly=temperature_2m,apparent_temperature,weathercode&temperature_unit={units}"
@@ -126,7 +127,15 @@ def render(epd, config):
         forecast = weather["hourly"] if forecast_mode == "hourly" else weather["daily"]
         sunrise = weather["daily"]["sunrise"][0]
         sunset = weather["daily"]["sunset"][0]
-        humidity = current.get("relative_humidity_2m")
+        
+        hourly = weather["hourly"]
+        now_iso_hour = now.replace(minute=0, second=0, microsecond=0).isoformat()
+        try:
+            humidity_index = hourly["time"].index(now_iso_hour)
+            humidity = hourly["relative_humidity_2m"][humidity_index]
+        except ValueError:
+            humidity = None
+
         now = datetime.now()
         night = is_night(now, sunrise, sunset)
 
@@ -157,8 +166,9 @@ def render(epd, config):
         # Temp and "feels like"
         unit = "°C" if use_celsius else "°F"
         temp = round(current["temperature"])
-        feels_like = round(forecast["apparent_temperature"][0]) if forecast_mode == "hourly" else temp
-        draw.text((90, 36), f"{temp}{unit}  {humidity}% RH", font=font, fill=text_color)
+        #feels_like = round(forecast["apparent_temperature"][0]) if forecast_mode == "hourly" else temp
+        humidity_str = f"{humidity}%RH" if humidity is not None else ""
+        draw.text((90, 36), f"{temp}{unit} {humidity_str}", font=font, fill=text_color)
 
         # Forecast (bottom)
         forecast_y = height - 65
@@ -166,17 +176,24 @@ def render(epd, config):
         for i in range(3):
             if forecast_mode == "hourly":
                 t = forecast["time"][i]
+                forecast_time = datetime.fromisoformat(t)
                 f_temp = round(forecast["temperature_2m"][i])
                 f_code = forecast["weathercode"][i]
-                label = datetime.fromisoformat(t).strftime("%H:%M")
+                label = forecast_time.strftime("%H:%M")
+
+                # Determine if that hourly forecast is at night
+                forecast_night = is_night(forecast_time, sunrise, sunset)
             else:
                 t = forecast["time"][i]
                 f_temp = round(forecast["temperature_2m_max"][i])
                 f_code = forecast["weathercode"][i]
                 label = datetime.fromisoformat(t).strftime("%a")
 
+                # Assume daily forecasts are daytime
+                forecast_night = False
+
             x = width - (3 - i) * spacing
-            icon_path = icon_path_for_code(f_code, night)
+            icon_path = icon_path_for_code(f_code, forecast_night)
             icon = Image.open(icon_path).convert('1').resize((40, 40))
             black_img.paste(icon, (x, forecast_y))
             draw.text((x, forecast_y + 42), f"{f_temp}{unit}", font=small_font, fill=text_color)
