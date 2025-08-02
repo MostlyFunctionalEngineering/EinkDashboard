@@ -234,6 +234,7 @@ def render(epd, config):
                 f_temp = round(forecast["temperature_2m_max"][i])
                 f_code = forecast["weathercode"][i]
                 label = datetime.fromisoformat(t).strftime("%a")
+            logger.debug(f"Forecast {i}: code={f_code}, temp={f_temp}, label={label}")
 
             x = width - (4 - i) * spacing
             icon_path = icon_path_for_code(f_code, False)
