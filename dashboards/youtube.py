@@ -1,9 +1,10 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 import os
 import logging
 import requests
 import csv
+import pandas as pd
 from dotenv import load_dotenv
 
 logger = logging.getLogger(__name__)
@@ -13,7 +14,6 @@ def render(epd, config):
 
     try:
         height, width = epd.height, epd.width
-
         cfg = config.get('youtube', {})
         bg_path = cfg.get('background')
         font_path = cfg.get('font_path', '/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf')
@@ -52,7 +52,6 @@ def render(epd, config):
         resp = requests.get(url)
         resp.raise_for_status()
         data = resp.json()
-
         item = data['items'][0]
         sub_count = int(item['statistics']['subscriberCount'])
         logger.debug(f"Subscribers: {sub_count}")
@@ -70,30 +69,30 @@ def render(epd, config):
         # Draw history chart if enabled
         if show_history and os.path.exists(csv_path):
             try:
-                import pandas as pd
-                from datetime import timedelta
-
                 df = pd.read_csv(csv_path, parse_dates=["timestamp"])
                 latest = df["timestamp"].max()
                 earliest = latest - timedelta(days=history_days)
-                df = df[df["timestamp"] >= earliest]
-
-                # Resample to 225 points max for plotting
-                if len(df) > 225:
-                    df = df.set_index("timestamp").resample(f'{int(history_days*24/225)}H').mean().dropna().reset_index()
+                df = df[df["timestamp"] >= earliest].sort_values("timestamp")
 
                 values = df["subscribers"].tolist()
-                if values:
-                    chart_w, chart_h = 225, 80
+                times = df["timestamp"].tolist()
+
+                if len(values) >= 2:
+                    chart_w, chart_h = 225, 60
                     chart_x, chart_y = 6, width - chart_h - 6
-                    max_val = max(values)
-                    min_val = min(values)
-                    scale = (chart_h - 3) / (max_val - min_val or 1)
-                    points = [
-                        (chart_x + i, chart_y + chart_h - 1 - int((v - min_val) * scale))
-                        for i, v in enumerate(values)
-                    ]
+                    min_val, max_val = min(values), max(values)
+                    val_range = max_val - min_val or 1
+                    time_start = times[0].timestamp()
+                    time_end = times[-1].timestamp()
+                    time_range = time_end - time_start or 1
+
                     draw = ImageDraw.Draw(black_img)
+                    points = []
+                    for t, v in zip(times, values):
+                        px = chart_x + int(((t.timestamp() - time_start) / time_range) * (chart_w - 1))
+                        py = chart_y + chart_h - 2 - int(((v - min_val) / val_range) * (chart_h - 3))
+                        points.append((px, py))
+
                     for x, y in points:
                         draw.line([(x, chart_y + chart_h - 1), (x, y + 1)], fill=0)
                     for i in range(1, len(points)):
@@ -112,12 +111,11 @@ def render(epd, config):
         text_w = bbox[2] - bbox[0]
         text_h = bbox[3] - bbox[1]
 
-        x = height - text_w - 8  # 7 px buffer + 1 extra
-        y = 4  # Top edge buffer
+        x = height - text_w - 8
+        y = 4
 
         draw_text.text((x, y), sub_str, font=subs_font, fill=0)
 
-        # Paste text mask
         mask = text_layer.point(lambda p: 255 if p < 128 else 0, mode='1')
         black_img.paste(Image.new('1', (height, width), text_color), (0, 0), mask)
 
