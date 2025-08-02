@@ -120,13 +120,64 @@ nano config.yaml
 - **Time format**: 12-hour vs 24-hour display
 - **Refresh intervals**: How often to update data
 
-#### API Keys (If Needed)
-Some features might require API keys:
-- **Weather**: Usually works without keys for basic usage
-- **Stocks**: Check if your preferred data source needs authentication
-- **YouTube**: Requires API key for channel statistics
+#### **IMPORTANT: Set Up API Keys**
 
-*Don't worry - the dashboard will work great with the default settings!*
+**The YouTube and Stock dashboards will NOT work without API keys!** You need to create a `.env` file with your API credentials.
+
+##### Get a YouTube API Key
+1. Go to the [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project (or select an existing one)
+3. Enable the **YouTube Data API v3**:
+   - Go to "APIs & Services" → "Library"
+   - Search for "YouTube Data API v3"
+   - Click on it and press "Enable"
+4. Create credentials:
+   - Go to "APIs & Services" → "Credentials"
+   - Click "Create Credentials" → "API Key"
+   - Copy your API key (keep it secret!)
+5. **Optional**: Restrict the API key to only YouTube Data API for security
+
+##### Get Your YouTube Channel ID
+1. Go to your YouTube channel
+2. Copy the channel ID from the URL:
+   - **New format**: `https://www.youtube.com/channel/UCxxxxxxxxxxxxxxxxxxxxxxx` (copy the part after `/channel/`)
+   - **Custom URL**: If you have a custom URL, go to your channel → About tab → copy the channel ID from there
+3. **Alternative method**: Use a tool like [YouTube Channel ID Finder](https://commentpicker.com/youtube-channel-id.php)
+
+##### Get a Finnhub Stock API Key
+1. Go to [Finnhub.io](https://finnhub.io/) (free tier available)
+2. Sign up for a free account
+3. Go to your dashboard and copy your API key
+4. Free tier includes 60 API calls per minute (plenty for this project!)
+
+##### Create Your .env File
+In your EinkDashboard directory, create a `.env` file:
+
+```bash
+nano .env
+```
+
+Add your API keys and channel ID like this:
+
+```
+YOUTUBE_API_KEY=your_youtube_api_key_here
+YOUTUBE_CHANNEL_ID=your_youtube_channel_id_here
+FINNHUB_API_KEY=your_finnhub_api_key_here
+```
+
+**Example .env file:**
+```
+YOUTUBE_API_KEY=AIzaSyBxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+YOUTUBE_CHANNEL_ID=UCPqrW35BnRePrjOEAL8YBVg
+FINNHUB_API_KEY=abc123defghijklmnop
+```
+
+**⚠️ IMPORTANT**: 
+- Replace the example keys with your actual API keys
+- Keep this file secret! Never share it or commit it to version control
+- The `.env` file should be in the same directory as `main.py`
+
+*Note: The clock and weather dashboards work without API keys, so you can test those first!*
 
 ### Step 9: Test Your Setup
 
