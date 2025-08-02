@@ -221,7 +221,6 @@ def render(epd, config):
         draw.text((x_labels, y_anchor + (speed_h - label_h) // 2), label_str, font=small_font, fill=text_color)
 
         # Forecast (bottom), skipping today
-        forecast_y = height - 80
         spacing = 52
         icon_size = 40  # pixels
         for i in range(1, 4):
@@ -247,7 +246,7 @@ def render(epd, config):
             temp_h = temp_bbox[3] - temp_bbox[1]
 
             # Bottom padding from edge
-            bottom_padding = 4
+            bottom_padding = 6
             temp_y = height - temp_h - bottom_padding
             date_y = temp_y - date_h - 2
             icon_y = date_y - icon_size - 2
