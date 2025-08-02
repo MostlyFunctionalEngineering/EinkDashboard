@@ -188,7 +188,7 @@ def render(epd, config):
         if invert:
             rotated_black = Image.eval(rotated_black, lambda px: 255 - px)
 
-        epd.display(epd.getbuffer(rotated_black))
+        epd.display_fast(epd.getbuffer(rotated_black))
         logger.debug("Weather dashboard rendered")
 
     except Exception as e:

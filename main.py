@@ -42,7 +42,7 @@ def main():
     setup_logging(config)
 
     epd = epd2in13b_V4.EPD()
-    epd.init()
+    epd.init_fast()
 
     gui_thread = threading.Thread(target=start_web_gui, daemon=True)
     gui_thread.start()
