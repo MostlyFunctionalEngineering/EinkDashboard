@@ -3,6 +3,7 @@ import os
 import logging
 import requests
 from datetime import datetime, time
+from dateutil import parser
 from geopy.geocoders import Nominatim
 
 logger = logging.getLogger(__name__)
@@ -124,11 +125,14 @@ def render(epd, config):
         forecast = weather["hourly"] if forecast_mode == "hourly" else weather["daily"]
 
         now = datetime.now()
-        now_iso_hour = now.replace(minute=0, second=0, microsecond=0).isoformat()
+        hourly_times = [parser.isoparse(t) for t in hourly["time"]]
+        now_rounded = now.replace(minute=0, second=0, microsecond=0)
+
+        # Find the closest match
         try:
-            humidity_index = hourly["time"].index(now_iso_hour)
+            humidity_index = next(i for i, t in enumerate(hourly_times) if t == now_rounded)
             humidity = round(hourly["relative_humidity_2m"][humidity_index])
-        except (ValueError, KeyError):
+        except StopIteration:
             humidity = None
 
         sunrise = weather["daily"]["sunrise"][0]
