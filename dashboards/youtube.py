@@ -2,8 +2,8 @@ from datetime import datetime
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 import os
 import logging
-import csv
 import requests
+import csv
 from dotenv import load_dotenv
 
 logger = logging.getLogger(__name__)
@@ -14,18 +14,15 @@ def render(epd, config):
     try:
         height, width = epd.height, epd.width
 
-        yt_cfg = config.get('youtube', {})
-        bg_path = yt_cfg.get('background')
-        font_path = yt_cfg.get('font_path', '/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf')
-        font_size = yt_cfg.get('font_size', 20)
-        invert = yt_cfg.get('invert_colors', False)
-        logo_path = 'assets/Borders_and_Logos/YouTube_Logo_68x48.bmp'
-        data_path = 'data/subscribers.csv'
+        cfg = config.get('youtube', {})
+        bg_path = cfg.get('background')
+        font_path = cfg.get('font_path', '/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf')
+        font_size = cfg.get('font_size', 18)
+        invert = cfg.get('invert_colors', False)
 
         white = 255 if not invert else 0
         text_color = 255 if invert else 0
 
-        font = ImageFont.truetype(font_path, font_size)
         black_img = Image.new('1', (height, width), white)
         red_img = Image.new('1', (height, width), 255)
 
@@ -39,57 +36,64 @@ def render(epd, config):
             except Exception as e:
                 logger.warning(f"Failed to load background: {bg_path}, error: {e}")
 
-        draw = ImageDraw.Draw(black_img)
-
         load_dotenv()
         api_key = os.getenv("YOUTUBE_API_KEY")
         channel_id = os.getenv("YOUTUBE_CHANNEL_ID")
+        if not api_key or not channel_id:
+            raise RuntimeError("Missing YOUTUBE_API_KEY or YOUTUBE_CHANNEL_ID in .env")
 
-        url = f"https://www.googleapis.com/youtube/v3/channels?part=statistics,snippet&id={channel_id}&key={api_key}"
+        # Query YouTube API
+        url = (
+            "https://www.googleapis.com/youtube/v3/channels"
+            f"?part=snippet,statistics&id={channel_id}&key={api_key}"
+        )
         resp = requests.get(url)
         resp.raise_for_status()
         data = resp.json()
 
-        channel = data['items'][0]
-        name = channel['snippet']['title']
-        subs = int(channel['statistics']['subscriberCount'])
+        item = data['items'][0]
+        channel_name = item['snippet']['title']
+        sub_count = int(item['statistics']['subscriberCount'])
 
-        # Save to CSV
-        os.makedirs(os.path.dirname(data_path), exist_ok=True)
-        now = datetime.now().isoformat()
-        if not os.path.exists(data_path):
-            with open(data_path, 'w', newline='') as f:
-                writer = csv.writer(f)
-                writer.writerow(['timestamp', 'subscribers'])
-        with open(data_path, 'a', newline='') as f:
+        logger.debug(f"Fetched channel: {channel_name}, subscribers: {sub_count}")
+
+        # Write to CSV
+        os.makedirs("data", exist_ok=True)
+        with open("data/subscribers.csv", "a", newline="") as f:
             writer = csv.writer(f)
-            writer.writerow([now, subs])
+            writer.writerow([datetime.now().isoformat(), sub_count])
 
-        # Text for display
-        name_str = name
-        subs_str = f"{subs:,} Subscribers"
+        # Fonts
+        channel_font = ImageFont.truetype(font_path, font_size)
+        subs_font = ImageFont.truetype(font_path, int(font_size * 0.9))
 
-        # Logo
-        if os.path.exists(logo_path):
-            logo = Image.open(logo_path).convert('1')
-            black_img.paste(logo, (6, 6))
-            logger.debug("Pasted YouTube logo")
-
-        # Draw text on separate mask layer
         text_layer = Image.new('L', (height, width), 255)
         draw_text = ImageDraw.Draw(text_layer)
 
-        name_w = font.getlength(name_str)
-        subs_w = font.getlength(subs_str)
+        # Right-aligned text block with wrapping logic
+        sub_str = f"{sub_count:,} Subscribers"
+        channel_w, channel_h = channel_font.getsize(channel_name)
+        subs_w, subs_h = subs_font.getsize(sub_str)
 
-        draw_text.text((height - name_w - 6, 6), name_str, font=font, fill=0)
-        draw_text.text((height - subs_w - 6, 6 + font_size + 4), subs_str, font=font, fill=0)
+        if channel_w > height - 12:
+            # Name too long: wrap to two lines
+            line1_y = 6
+            line2_y = line1_y + channel_h + 2
+            draw_text.text((height - channel_w - 6, line1_y), channel_name, font=channel_font, fill=0)
+            draw_text.text((height - subs_w - 6, line2_y), sub_str, font=subs_font, fill=0)
+        else:
+            # Vertically center both lines
+            block_height = channel_h + subs_h + 2
+            start_y = (width - block_height) // 2
+            draw_text.text((height - channel_w - 6, start_y), channel_name, font=channel_font, fill=0)
+            draw_text.text((height - subs_w - 6, start_y + channel_h + 2), sub_str, font=subs_font, fill=0)
 
+        # Convert mask and paste text
         mask = text_layer.point(lambda p: 255 if p < 128 else 0, mode='1')
         black_img.paste(Image.new('1', (height, width), text_color), (0, 0), mask)
 
+        # Rotate and display
         rotated_black = black_img.rotate(90, expand=True)
-        rotated_red = red_img.rotate(90, expand=True)
         if invert:
             rotated_black = Image.eval(rotated_black, lambda px: 255 - px)
 
