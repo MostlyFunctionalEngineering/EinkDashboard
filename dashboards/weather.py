@@ -126,7 +126,7 @@ def render(epd, config):
         forecast = weather["hourly"] if forecast_mode == "hourly" else weather["daily"]
         sunrise = weather["daily"]["sunrise"][0]
         sunset = weather["daily"]["sunset"][0]
-        humidity = weather["relative_humidity_2m"]
+        humidity = current.get("relative_humidity_2m")
         now = datetime.now()
         night = is_night(now, sunrise, sunset)
 
