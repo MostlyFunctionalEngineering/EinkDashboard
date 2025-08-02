@@ -1,97 +1,89 @@
-import os
-import requests
-import logging
-from datetime import datetime
 from PIL import Image, ImageDraw, ImageFont, ImageOps
+import os
+import logging
+import requests
 from dotenv import load_dotenv
 
 logger = logging.getLogger(__name__)
-load_dotenv()
-
-FINNHUB_API_KEY = os.getenv("FINNHUB_API_KEY")
-FINNHUB_URL = "https://finnhub.io/api/v1/quote"
-
-MARGIN = 6  # buffer around the edges
-
-def fetch_stock_data(symbols):
-    data = {}
-    for symbol in symbols:
-        try:
-            resp = requests.get(
-                FINNHUB_URL,
-                params={"symbol": symbol, "token": FINNHUB_API_KEY},
-                timeout=5
-            )
-            resp.raise_for_status()
-            quote = resp.json()
-            price = quote.get("c")
-            prev_close = quote.get("pc")
-            if price is not None and prev_close:
-                change_pct = 100 * (price - prev_close) / prev_close
-                data[symbol] = (price, change_pct)
-        except Exception as e:
-            logger.warning(f"Failed to fetch {symbol}: {e}")
-    return data
 
 def render(epd, config):
     try:
         logger.debug("Rendering stocks dashboard")
-
         height, width = epd.height, epd.width
-        cfg = config.get("stocks", {})
-        bg_path = cfg.get("background")
-        font_path = cfg.get("font_path", "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf")
-        font_size = cfg.get("font_size", 18)
-        invert = cfg.get("invert_colors", False)
-        symbols = cfg.get("symbols", [])[:4]
+
+        stock_cfg = config.get('stocks', {})
+        bg_path = stock_cfg.get('background')
+        font_path = stock_cfg.get('font_path', '/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf')
+        font_size = stock_cfg.get('font_size', 18)
+        invert = stock_cfg.get('invert_colors', False)
+        symbols = stock_cfg.get('symbols', [])[:4]
 
         white = 255 if not invert else 0
         text_color = 255 if invert else 0
 
         font = ImageFont.truetype(font_path, font_size)
-        line_height = font.getbbox("Hg")[3] - font.getbbox("Hg")[1] + 4
-
-        black_img = Image.new("1", (height, width), white)
+        black_img = Image.new('1', (height, width), white)
+        red_img = Image.new('1', (height, width), 255)
 
         if bg_path and os.path.exists(bg_path):
             try:
-                background = Image.open(bg_path).convert("L").resize((height, width))
+                bg = Image.open(bg_path).convert('L').resize((height, width))
                 if invert:
-                    background = ImageOps.invert(background)
-                background = background.convert("1")
-                black_img.paste(background)
+                    bg = ImageOps.invert(bg)
+                black_img.paste(bg.convert('1'))
                 logger.debug(f"Applied background image: {bg_path}")
             except Exception as e:
-                logger.warning(f"Failed to load background {bg_path}: {e}")
+                logger.warning(f"Failed to load background: {e}")
 
-        text_layer = Image.new("L", (height, width), 255)
-        draw = ImageDraw.Draw(text_layer)
+        draw = ImageDraw.Draw(black_img)
 
-        data = fetch_stock_data(symbols)
-        start_y = (width - (len(data) * line_height)) // 2
+        load_dotenv()
+        api_key = os.getenv("FINNHUB_API_KEY")
+        results = []
+        for sym in symbols:
+            try:
+                url = f"https://finnhub.io/api/v1/quote?symbol={sym}&token={api_key}"
+                resp = requests.get(url)
+                resp.raise_for_status()
+                data = resp.json()
+                price = data.get('c')
+                prev = data.get('pc')
+                if price and prev:
+                    change_pct = ((price - prev) / prev) * 100
+                    results.append((sym, price, change_pct))
+            except Exception as e:
+                logger.warning(f"Failed to fetch {sym}: {e}")
 
-        for i, symbol in enumerate(symbols):
-            if symbol not in data:
-                continue
-            price, pct = data[symbol]
-            y = start_y + i * line_height
+        top_margin = 6
+        row_height = font_size + 4
+        total_height = len(results) * row_height
+        start_y = (width - total_height) // 2
+        col_x = [6, height // 2, height - 6]
 
-            arrow = "↑" if pct > 0 else "↓" if pct < 0 else "→"
-            pct_str = f"{arrow} {abs(pct):.2f}%"
+        for i, (sym, price, pct) in enumerate(results):
+            y = start_y + i * row_height
+            price_str = f"{price:7.2f}"
+            pct_str = f"{abs(pct):.2f}%"
+            arrow = "↑" if pct > 0 else "↓"
 
-            draw.text((MARGIN, y), symbol, font=font, fill=0)
-            price_text = f"{price:.2f}"
-            price_w = font.getlength(price_text)
-            draw.text(((height - price_w) // 2, y), price_text, font=font, fill=0)
-            pct_w = font.getlength(pct_str)
-            draw.text((height - MARGIN - pct_w, y), pct_str, font=font, fill=0)
+            draw.text((col_x[0], y), sym, font=font, fill=text_color)
 
-        mask = text_layer.point(lambda p: 255 if p < 128 else 0, mode="1")
-        black_img.paste(Image.new("1", (height, width), text_color), (0, 0), mask)
+            price_w = font.getlength(price_str)
+            price_x = col_x[1] - price_w / 2
+            draw.text((price_x, y), price_str, font=font, fill=text_color)
 
-        logger.debug("Sending image to display")
-        epd.display_fast(epd.getbuffer(black_img))
+            pct_w = font.getlength(arrow + " " + pct_str)
+            pct_x = col_x[2] - pct_w
+            draw.text((pct_x, y), arrow, font=font, fill=text_color)
+            draw.text((pct_x + font.getlength(arrow + " "), y), pct_str, font=font, fill=text_color)
+
+        rotated_black = black_img.rotate(90, expand=True)
+        rotated_red = red_img.rotate(90, expand=True)
+        if invert:
+            rotated_black = Image.eval(rotated_black, lambda px: 255 - px)
+
+        epd.display_fast(epd.getbuffer(rotated_black))
         logger.debug("Stocks dashboard rendered")
 
     except Exception as e:
-        logger.exception(f"Stock rendering failed: {e}")
+        logger.exception(f"Stocks rendering failed: {e}")
