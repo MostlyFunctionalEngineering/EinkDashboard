@@ -59,24 +59,22 @@ def render(epd, config):
         # Save to CSV
         os.makedirs("data", exist_ok=True)
         csv_path = "data/subscribers.csv"
-        with open(csv_path, "r") as f:
-            reader = csv.reader(f)
-            next(reader, None)  # skip header row
-            values = []
-            for row in reader:
-                if len(row) != 2:
-                    continue
-                try:
-                    values.append(int(row[1]))
-                except ValueError:
-                    continue
+        is_new = not os.path.exists(csv_path)
+        with open(csv_path, "a", newline="") as f:
+            writer = csv.writer(f)
+            if is_new:
+                writer.writerow(["timestamp", "subscribers"])
+            writer.writerow([datetime.now().isoformat(), sub_count])
 
         # Draw history chart if enabled
         if show_history and os.path.exists(csv_path):
             try:
                 with open(csv_path, "r") as f:
-                    reader = list(csv.reader(f))[-225:]
-                    values = [int(row[1]) for row in reader if len(row) == 2]
+                    reader = csv.reader(f)
+                    next(reader, None)  # skip header
+                    rows = list(reader)[-225:]
+                    values = [int(row[1]) for row in rows if len(row) == 2]
+
                 if values:
                     chart_w, chart_h = 225, 100
                     chart_x, chart_y = 6, width - chart_h - 6
@@ -88,10 +86,10 @@ def render(epd, config):
                         for i, v in enumerate(values)
                     ]
                     draw = ImageDraw.Draw(black_img)
-                    for i in range(1, len(points)):
-                        draw.line([points[i - 1], points[i]], fill=0)
                     for x, y in points:
                         draw.line([(x, chart_y + chart_h - 1), (x, y + 1)], fill=0)
+                    for i in range(1, len(points)):
+                        draw.line([points[i - 1], points[i]], fill=0)
             except Exception as e:
                 logger.warning(f"Failed to draw history plot: {e}")
 
