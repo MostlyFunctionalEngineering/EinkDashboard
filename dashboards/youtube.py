@@ -77,6 +77,20 @@ def render(epd, config):
                 values = df["subscribers"].tolist()
                 times = df["timestamp"].tolist()
 
+                gain = sub_count - values[0] if values else 0
+
+                # Determine appropriate unit
+                if history_days < 2:
+                    unit = "Past Day"
+                elif history_days < 14:
+                    unit = f"Past {history_days} Days"
+                elif history_days < 60:
+                    unit = f"Past {round(history_days / 7)} Weeks"
+                else:
+                    unit = f"Past {round(history_days / 30)} Months"
+
+                gain_str = f"+{gain:,} {unit}"
+
                 if len(values) >= 2:
                     chart_w, chart_h = 225, 60
                     chart_x, chart_y = 6, width - chart_h - 6
@@ -123,6 +137,13 @@ def render(epd, config):
         y = 4
 
         draw_text.text((x, y), sub_str, font=subs_font, fill=0)
+        if cfg.get("show_gain", False) and values:
+            gain_font = ImageFont.truetype(font_path, int(font_size * 0.75))
+            gain_bbox = gain_font.getbbox(gain_str)
+            gain_w = gain_bbox[2] - gain_bbox[0]
+            gain_x = (height - gain_w) // 2
+            gain_y = y + text_h + 2  # 2-pixel spacing
+            draw_text.text((gain_x, gain_y), gain_str, font=gain_font, fill=0)
 
         mask = text_layer.point(lambda p: 255 if p < 128 else 0, mode='1')
         black_img.paste(Image.new('1', (height, width), text_color), (0, 0), mask)

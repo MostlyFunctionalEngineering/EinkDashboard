@@ -48,6 +48,7 @@ youtube:
   font_size: 22
   timeframe_days: 7
   show_history: true
+  show_gain: true
   invert_colors: false
   refresh_interval_seconds: 60
   background: assets/Borders_and_Logos/250x122_Rounded_Frame_With_Shadow.bmp
