@@ -1,8 +1,9 @@
-from dashboards import clock, weather
+from dashboards import clock, weather, stocks
 
 dashboards = {
     "clock": clock.render,
     "weather": weather.render,
+    "stocks": stocks.render
 }
 
 def show_dashboard(name, epd, config):

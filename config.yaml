@@ -17,10 +17,16 @@ clock:
   # background: assets/Borders_and_Logos/250x122_Sqaure_With_Shadow_Background.bmp
   # background: null   # No background
 stocks:
+  stocks:
   symbols:
-  - GOOG
-  - TSLA
-  refresh_interval_seconds: 900
+    - GOOG
+    - OKLO
+    - AAPL
+    - TSLA
+  invert_colors: false
+  font_size: 20
+  background: assets/Borders_and_Logos/250x122_Rounded_Frame_With_Shadow.bmp
+  refresh_interval_seconds: 60
 weather:
   location: 84043
   units: "C"                 # "F" or "C"
