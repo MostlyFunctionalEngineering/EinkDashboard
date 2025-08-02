@@ -142,7 +142,7 @@ def render(epd, config):
             gain_bbox = gain_font.getbbox(gain_str)
             gain_w = gain_bbox[2] - gain_bbox[0]
             gain_x = (height - gain_w) // 2
-            gain_y = y + text_h + 2  # 2-pixel spacing
+            gain_y = y + text_h + 3  # 3-pixel spacing
             draw_text.text((gain_x, gain_y), gain_str, font=gain_font, fill=0)
 
         mask = text_layer.point(lambda p: 255 if p < 128 else 0, mode='1')
