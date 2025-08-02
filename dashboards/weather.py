@@ -212,10 +212,13 @@ def render(epd, config):
         # Draw wind speed
         draw.text((margin, y_anchor), speed_str, font=font, fill=text_color)
 
-        # Draw units and direction stacked to the right
+        # Draw units and direction inline
+        label_str = f"{units_str} {dir_str}"
+        label_bbox = small_font.getbbox(label_str)
+        label_h = label_bbox[3] - label_bbox[1]
         x_labels = margin + speed_w + 6
-        draw.text((x_labels, y_anchor), units_str, font=small_font, fill=text_color)
-        draw.text((x_labels, y_anchor + units_h + label_spacing), dir_str, font=small_font, fill=text_color)
+
+        draw.text((x_labels, y_anchor + (speed_h - label_h) // 2), label_str, font=small_font, fill=text_color)
 
         # Forecast (bottom), skipping today
         forecast_y = height - 60
