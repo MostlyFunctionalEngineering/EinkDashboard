@@ -206,7 +206,7 @@ def render(epd, config):
         label_spacing = 2
 
         # Anchor position (bottom-left, raised 6px)
-        margin = 6
+        margin = 7
         y_anchor = height - speed_h - margin - 6  # raise entire block 6px
 
         # Draw wind speed
