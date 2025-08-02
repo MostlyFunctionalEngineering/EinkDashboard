@@ -20,7 +20,7 @@ def render(epd, config):
         font_size = cfg.get('font_size', 18)
         invert = cfg.get('invert_colors', False)
         show_history = cfg.get('show_history', False)
-        history_days = cfg.get('history_days', 7)
+        history_days = cfg.get('timeframe_days', 7)  # match config key
 
         white = 255 if not invert else 0
         text_color = 255 if invert else 0
@@ -93,8 +93,13 @@ def render(epd, config):
                         py = chart_y + chart_h - 2 - int(((v - min_val) / val_range) * (chart_h - 3))
                         points.append((px, py))
 
-                    for x, y in points:
-                        draw.line([(x, chart_y + chart_h - 1), (x, y + 1)], fill=0)
+                    drawn_dates = set()
+                    for (x, y), t in zip(points, times):
+                        t_date = t.date()
+                        if t_date not in drawn_dates:
+                            draw.line([(x, chart_y + chart_h - 1), (x, y + 1)], fill=0)
+                            drawn_dates.add(t_date)
+
                     for i in range(1, len(points)):
                         draw.line([points[i - 1], points[i]], fill=0)
             except Exception as e:
