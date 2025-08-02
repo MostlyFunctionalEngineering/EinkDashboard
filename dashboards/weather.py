@@ -175,12 +175,12 @@ def render(epd, config):
         unit = "°C" if use_celsius else "°F"
         temp = round(current["temperature"])
         temp_str = f"{temp}{unit}"
-        draw.text((93, 25), temp_str, font=font, fill=text_color)
+        draw.text((93, 27), temp_str, font=font, fill=text_color)
         if humidity is not None:
             hum_str = f" {humidity}%RH"
             bbox = font.getbbox(temp_str)
             temp_w = bbox[2] - bbox[0]
-            draw.text((93 + temp_w + 15, 25), hum_str, font=font, fill=text_color)
+            draw.text((93 + temp_w + 16, 27), hum_str, font=font, fill=text_color)
 
         # Wind speed and direction (bottom-left corner)
         wind_kmh = current.get("windspeed", 0)
@@ -246,7 +246,7 @@ def render(epd, config):
             temp_h = temp_bbox[3] - temp_bbox[1]
 
             # Bottom padding from edge
-            bottom_padding = 6
+            bottom_padding = 9
             temp_y = height - temp_h - bottom_padding
             date_y = temp_y - date_h - 2
             icon_y = date_y - icon_size - 2
