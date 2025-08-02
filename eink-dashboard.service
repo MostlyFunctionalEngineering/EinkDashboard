@@ -1,0 +1,22 @@
+[Unit]
+Description=E-ink Dashboard Service
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=pizerodashboard
+Group=pizerodashboard
+WorkingDirectory=/home/pizerodashboard/EinkDashboard
+Environment=PATH=/usr/bin:/usr/local/bin:/home/pizerodashboard/.local/bin
+ExecStart=/usr/bin/python3 main.py
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+# Ensure the service waits for the system to be ready
+TimeoutStartSec=30
+
+[Install]
+WantedBy=multi-user.target
