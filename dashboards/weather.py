@@ -87,8 +87,9 @@ def fetch_weather(lat, lon, forecast_mode, use_celsius):
     base_url = (
         f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}"
         f"&current_weather=true&timezone=auto"
-        f"&daily=sunrise,sunset"
-        f"&hourly=temperature_2m,apparent_temperature,weathercode,relative_humidity_2m&temperature_unit={units}"
+        f"&daily=sunrise,sunset,temperature_2m_max,temperature_2m_min,weathercode"
+        f"&hourly=temperature_2m,apparent_temperature,weathercode,relative_humidity_2m"
+        f"&temperature_unit={units}"
     )
     r = requests.get(base_url)
     r.raise_for_status()
