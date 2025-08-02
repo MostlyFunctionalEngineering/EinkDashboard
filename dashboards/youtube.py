@@ -59,9 +59,17 @@ def render(epd, config):
         # Save to CSV
         os.makedirs("data", exist_ok=True)
         csv_path = "data/subscribers.csv"
-        with open(csv_path, "a", newline="") as f:
-            writer = csv.writer(f)
-            writer.writerow([datetime.now().isoformat(), sub_count])
+        with open(csv_path, "r") as f:
+            reader = csv.reader(f)
+            next(reader, None)  # skip header row
+            values = []
+            for row in reader:
+                if len(row) != 2:
+                    continue
+                try:
+                    values.append(int(row[1]))
+                except ValueError:
+                    continue
 
         # Draw history chart if enabled
         if show_history and os.path.exists(csv_path):
