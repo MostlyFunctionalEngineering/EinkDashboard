@@ -221,7 +221,7 @@ def render(epd, config):
         draw.text((x_labels, y_anchor + (speed_h - label_h) // 2), label_str, font=small_font, fill=text_color)
 
         # Forecast (bottom), skipping today
-        forecast_y = height - 60
+        forecast_y = height - 71
         spacing = 52
         icon_size = 40  # pixels
         for i in range(1, 4):
@@ -238,12 +238,7 @@ def render(epd, config):
 
             x = width - (4 - i) * spacing
 
-            # Forecast icon
-            icon_path = icon_path_for_code(f_code, False)
-            icon = Image.open(icon_path).convert('1').resize((icon_size, icon_size))
-            black_img.paste(icon, (x, forecast_y))
-
-            # Forecast text layout
+            # Forecast strings and sizes
             temp_str = f"{f_temp}{unit}"
             date_bbox = small_font.getbbox(label)
             temp_bbox = small_font.getbbox(temp_str)
@@ -251,9 +246,18 @@ def render(epd, config):
             date_h = date_bbox[3] - date_bbox[1]
             temp_h = temp_bbox[3] - temp_bbox[1]
 
-            date_y = forecast_y + icon_size + 2
-            temp_y = date_y + date_h + 2
+            # Bottom padding from edge
+            bottom_padding = 4
+            temp_y = height - temp_h - bottom_padding
+            date_y = temp_y - date_h - 2
+            icon_y = date_y - icon_size - 2
 
+            # Load and paste icon
+            icon_path = icon_path_for_code(f_code, False)
+            icon = Image.open(icon_path).convert('1').resize((icon_size, icon_size))
+            black_img.paste(icon, (x, icon_y))
+
+            # Draw text
             draw.text((x, date_y), label, font=small_font, fill=text_color)
             draw.text((x, temp_y), temp_str, font=small_font, fill=text_color)
 
