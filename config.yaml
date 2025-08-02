@@ -23,12 +23,8 @@ stocks:
     - OKLO
     - AAPL
     - TSLA
-    - NVDA
-    - MSFT
-    - META
-    - AMZN
   invert_colors: false
-  font_size: 10
+  font_size: 20
   background: assets/Borders_and_Logos/250x122_Rounded_Frame_With_Shadow.bmp
   refresh_interval_seconds: 60
 weather:
@@ -50,7 +46,7 @@ youtube:
   show_history: true
   show_gain: true
   invert_colors: false
-  refresh_interval_seconds: 60
+  refresh_interval_seconds: 600
   background: assets/Borders_and_Logos/250x122_Rounded_Frame_With_Shadow.bmp
 logging:
   level: DEBUG #"DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"
