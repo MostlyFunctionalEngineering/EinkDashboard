@@ -126,6 +126,7 @@ def render(epd, config):
         forecast = weather["hourly"] if forecast_mode == "hourly" else weather["daily"]
         sunrise = weather["daily"]["sunrise"][0]
         sunset = weather["daily"]["sunset"][0]
+        humidity = forecast["relative_humidity_2m"][0] if forecast_mode == "hourly" else None
         now = datetime.now()
         night = is_night(now, sunrise, sunset)
 
@@ -159,6 +160,10 @@ def render(epd, config):
         feels_like = round(forecast["apparent_temperature"][0]) if forecast_mode == "hourly" else temp
         draw.text((90, 36), f"{temp}{unit}", font=font, fill=text_color)
         draw.text((90, 36 + font_size + 2), f"Feels like {feels_like}{unit}", font=small_font, fill=text_color)
+        if humidity is not None:
+            hum_str = f"{humidity}% RH"
+            temp_w, _ = font.getsize(temp_str)
+            draw.text((90 + temp_w + 10, 36), hum_str, font=small_font, fill=text_color)
 
         # Forecast (bottom)
         forecast_y = height - 65
