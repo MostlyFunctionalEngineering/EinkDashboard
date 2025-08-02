@@ -20,6 +20,7 @@ def render(epd, config):
         font_size = cfg.get('font_size', 18)
         invert = cfg.get('invert_colors', False)
         show_history = cfg.get('show_history', False)
+        history_days = cfg.get('history_days', 7)
 
         white = 255 if not invert else 0
         text_color = 255 if invert else 0
@@ -59,24 +60,31 @@ def render(epd, config):
         # Save to CSV
         os.makedirs("data", exist_ok=True)
         csv_path = "data/subscribers.csv"
-        is_new = not os.path.exists(csv_path)
+        write_header = not os.path.exists(csv_path)
         with open(csv_path, "a", newline="") as f:
             writer = csv.writer(f)
-            if is_new:
+            if write_header:
                 writer.writerow(["timestamp", "subscribers"])
             writer.writerow([datetime.now().isoformat(), sub_count])
 
         # Draw history chart if enabled
         if show_history and os.path.exists(csv_path):
             try:
-                with open(csv_path, "r") as f:
-                    reader = csv.reader(f)
-                    next(reader, None)  # skip header
-                    rows = list(reader)[-225:]
-                    values = [int(row[1]) for row in rows if len(row) == 2]
+                import pandas as pd
+                from datetime import timedelta
 
+                df = pd.read_csv(csv_path, parse_dates=["timestamp"])
+                latest = df["timestamp"].max()
+                earliest = latest - timedelta(days=history_days)
+                df = df[df["timestamp"] >= earliest]
+
+                # Resample to 225 points max for plotting
+                if len(df) > 225:
+                    df = df.set_index("timestamp").resample(f'{int(history_days*24/225)}H').mean().dropna().reset_index()
+
+                values = df["subscribers"].tolist()
                 if values:
-                    chart_w, chart_h = 225, 100
+                    chart_w, chart_h = 225, 80
                     chart_x, chart_y = 6, width - chart_h - 6
                     max_val = max(values)
                     min_val = min(values)
