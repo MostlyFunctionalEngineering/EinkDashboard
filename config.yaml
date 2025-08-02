@@ -1,4 +1,4 @@
-current_dashboard: clock
+current_dashboard: weather
 clock:
   invert_colors: true
   font_path: fonts/home-video-font/HomeVideo-BLG6G.ttf
@@ -26,12 +26,11 @@ weather:
   units: "C"                 # "F" or "C"
   date_format: "%a %b %d"    # strftime format
   forecast_mode: "daily"    # "hourly" or "daily"
-  font_path: fonts/home-video-font/HomeVideo-BLG6G.ttf
-  font_size: 22
+  font_path: fonts/home-video-font/HomeVideo-BLG6G.ttf 
+  font_size: 22 #Note that 22 with HomeVideo-BLG6G is what everything has been formatted with!!! Change at your own risk!
   invert_colors: false
   refresh_interval_seconds: 60
   background: assets/Borders_and_Logos/250x122_Rounded_Frame_With_Shadow.bmp
-  # background: assets/Borders_and_Logos/250x122_Geometric_Pattern.bmp
   # background: assets/Borders_and_Logos/250x122_Sqaure_With_Shadow_Background.bmp
   # background: null   # No background
 youtube:

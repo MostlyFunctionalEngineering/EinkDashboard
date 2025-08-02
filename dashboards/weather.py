@@ -205,7 +205,7 @@ def render(epd, config):
         dir_h = dir_bbox[3] - dir_bbox[1]
         label_spacing = 2
 
-        # Anchor position (bottom-left, raised 6px)
+        # Anchor position (bottom-left, raised 7px)
         margin = 7
         y_anchor = height - speed_h - margin - 6  # raise entire block 6px
 
@@ -216,7 +216,7 @@ def render(epd, config):
         label_str = f"{units_str} {dir_str}"
         label_bbox = small_font.getbbox(label_str)
         label_h = label_bbox[3] - label_bbox[1]
-        x_labels = margin + speed_w + 16
+        x_labels = margin + speed_w + 5
 
         draw.text((x_labels, y_anchor + (speed_h - label_h) // 2), label_str, font=small_font, fill=text_color)
 
