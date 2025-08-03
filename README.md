@@ -83,7 +83,7 @@ Reboot your Pi: `sudo reboot`
 
 ```bash
 cd ~
-git clone https://github.com/yourusername/EinkDashboard.git
+git clone https://github.com/MostlyFunctionalEngineering/EinkDashboard.git
 cd EinkDashboard
 ```
 
