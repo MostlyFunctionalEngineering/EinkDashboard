@@ -24,24 +24,23 @@ def index():
         # Handle dashboard selection
         if 'dashboard' in request.form:
             config['current_dashboard'] = request.form['dashboard']
-        
+
         # Handle cycling settings
-        if 'cycle_enabled' in request.form:
-            cycle_config = config.setdefault('cycle', {})
-            cycle_config['enabled'] = request.form.get('cycle_enabled') == 'on'
-            
-            # Update cycle interval
-            try:
-                interval = int(request.form.get('cycle_interval', 5))
-                cycle_config['interval_minutes'] = max(1, interval)  # Minimum 1 minute
-            except (ValueError, TypeError):
-                cycle_config['interval_minutes'] = 5
-            
-            # Update dashboard enables
-            dashboards_config = cycle_config.setdefault('dashboards', {})
-            for dashboard in ['clock', 'youtube', 'weather', 'stocks']:
-                dashboards_config[dashboard] = request.form.get(f'enable_{dashboard}') == 'on'
+        cycle_config = config.setdefault('cycle', {})
+        cycle_config['enabled'] = 'cycle_enabled' in request.form
         
+        # Cycle interval
+        try:
+            interval = int(request.form.get('cycle_interval', 5)) #Defaults to 3 minutes
+            cycle_config['interval_minutes'] = max(1, interval)
+        except (ValueError, TypeError):
+            cycle_config['interval_minutes'] = 5
+
+        # Update dashboard enables
+        dashboards_config = cycle_config.setdefault('dashboards', {})
+        for dashboard in ['clock', 'youtube', 'weather', 'stocks', 'text']:
+            dashboards_config[dashboard] = f'enable_{dashboard}' in request.form
+
         save_config(config)
         return redirect('/')
     
