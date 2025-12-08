@@ -18,6 +18,11 @@ def render(epd, config):
         spacing = text_cfg.get('vertical_spacing', 10)
         invert = text_cfg.get('invert_colors', False)
         bg_path = text_cfg.get('background')
+        align = text_cfg.get('align', 'center').lower()  # default center
+
+        if align not in ['left', 'center', 'right']:
+            logger.warning(f"Invalid align value '{align}', defaulting to 'center'")
+            align = 'center'
 
         # Colors
         background_color = 0 if invert else 255
@@ -25,7 +30,6 @@ def render(epd, config):
 
         # Base layers
         black_img = Image.new('1', (height, width), background_color)
-        red_img = Image.new('1', (height, width), 255)
 
         # Optional background image
         if bg_path and os.path.exists(bg_path):
@@ -53,7 +57,13 @@ def render(epd, config):
 
         current_y = top_y
         for (line, (line_w, line_h)) in zip(lines, line_sizes):
-            x = (height - line_w) // 2
+            if align == 'left':
+                x = 0
+            elif align == 'right':
+                x = height - line_w
+            else:  # center
+                x = (height - line_w) // 2
+
             draw.text((x, current_y), line, font=font, fill=0)
             current_y += line_h + spacing
 
