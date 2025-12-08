@@ -9,7 +9,7 @@ cycle:
     stocks: true
     text: false
 clock:
-  invert_colors: true
+  invert_colors: false
   font_path: fonts/home-video-font/HomeVideo-BLG6G.ttf
   font_size: 50        # Font size for time
   date_font_size: 20   # Font size for date
