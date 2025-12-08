@@ -16,6 +16,7 @@
         <option value="youtube" {% if current == 'youtube' %}selected{% endif %}>YouTube</option>
         <option value="weather" {% if current == 'weather' %}selected{% endif %}>Weather</option>
         <option value="stocks" {% if current == 'stocks' %}selected{% endif %}>Stocks</option>
+        <option value="text" {% if current == 'text' %}selected{% endif %}>Text</option>
       </select>
       <button type="submit">Set Dashboard</button>
     </form>
@@ -65,6 +66,13 @@
             <input type="checkbox" name="enable_stocks" 
                    {% if dashboard_enables.get('stocks', True) %}checked{% endif %}>
             <span class="toggle-text">Stocks</span>
+          </label>
+        </div>
+        <div class="toggle-group">
+          <label class="toggle-label">
+            <input type="checkbox" name="enable_text" 
+                  {% if dashboard_enables.get('text', True) %}checked{% endif %}>
+            <span class="toggle-text">Text</span>
           </label>
         </div>
       </div>
