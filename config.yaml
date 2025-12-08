@@ -28,7 +28,7 @@ clock:
   timezone: "America/Los_Angeles"
 text:
   enabled: false
-  text: "YOUR TEXT HERE"
+  text: "YOUR TEXT\nHERE"
   font_path: fonts/home-video-font/HomeVideo-BLG6G.ttf
   font_size: 40
   invert_colors: false

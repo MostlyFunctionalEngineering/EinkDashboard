@@ -1,4 +1,3 @@
-from datetime import datetime
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 import os
 import logging
@@ -11,12 +10,8 @@ def render(epd, config):
     try:
         height, width = epd.height, epd.width
 
-        # Load config block
+        # Load config
         text_cfg = config.get('text', {})
-        if not text_cfg.get('enabled', False):
-            logger.debug("Text dashboard disabled — skipping render")
-            return
-
         message = text_cfg.get('text', "")
         font_path = text_cfg.get('font_path', '/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf')
         font_size = text_cfg.get('font_size', 40)
@@ -47,17 +42,20 @@ def render(epd, config):
         # Load font
         font = ImageFont.truetype(font_path, font_size)
 
-        # Render text to layer
+        # Render multi-line text
+        lines = message.splitlines() or [""]  # fallback to one empty line
+        line_sizes = [font.getmask(line).size for line in lines]
+        total_height = sum(h for _, h in line_sizes) + spacing * (len(lines) - 1)
+        top_y = (width - total_height) // 2
+
         text_layer = Image.new('L', (height, width), 255)
         draw = ImageDraw.Draw(text_layer)
 
-        # Measure text
-        text_w, text_h = font.getmask(message).size
-        text_x = (height - text_w) // 2
-        text_y = (width - text_h) // 2
-
-        # Draw text
-        draw.text((text_x, text_y), message, font=font, fill=0)
+        current_y = top_y
+        for (line, (line_w, line_h)) in zip(lines, line_sizes):
+            x = (height - line_w) // 2
+            draw.text((x, current_y), line, font=font, fill=0)
+            current_y += line_h + spacing
 
         # Convert grayscale to mask
         mask = text_layer.point(lambda p: 255 if p < 128 else 0, mode='1')
