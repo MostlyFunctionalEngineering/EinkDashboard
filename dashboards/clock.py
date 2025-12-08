@@ -1,3 +1,4 @@
+from zoneinfo import ZoneInfo
 from datetime import datetime
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 import os
@@ -22,7 +23,15 @@ def render(epd, config):
         spacing = clock_cfg.get('vertical_spacing', 5)
         invert = clock_cfg.get('invert_colors', False)
 
-        now = datetime.now()
+        tz_name = clock_cfg.get('timezone')
+        if tz_name:
+            try:
+                now = datetime.now(ZoneInfo(tz_name))
+            except Exception as e:
+                logger.warning(f"Invalid timezone '{tz_name}', falling back to system local time: {e}")
+                now = datetime.now()
+        else:
+            now = datetime.now()
         time_str = now.strftime('%H:%M' if use_24hr else '%I:%M').lstrip('0')
         date_str = now.strftime(date_format) if show_date else None
 

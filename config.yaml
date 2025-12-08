@@ -24,6 +24,7 @@ clock:
   # background: assets/Borders_and_Logos/250x122_Geometric_Pattern.bmp
   # background: assets/Borders_and_Logos/250x122_Sqaure_With_Shadow_Background.bmp
   # background: null   # No background
+  timezone: "America/Los_Angeles"
 stocks:
   stocks:
   symbols:
