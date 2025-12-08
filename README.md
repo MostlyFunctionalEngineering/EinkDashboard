@@ -119,6 +119,7 @@ nano config.yaml
 - **Stock symbols**: Add your favorite stock tickers
 - **Time format**: 12-hour vs 24-hour display
 - **Refresh intervals**: How often to update data
+- **Timezone**: It should default to the timezone you setup your pi to, but you can change it if desired!
 
 #### **IMPORTANT: Set Up API Keys**
 
