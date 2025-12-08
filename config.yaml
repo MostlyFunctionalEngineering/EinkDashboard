@@ -27,12 +27,12 @@ clock:
   # background: null   # No background
   timezone: "America/Los_Angeles"
 text:
-  enabled: false
-  text: "YOUR TEXT\nHERE"
-  font_path: fonts/home-video-font/HomeVideo-BLG6G.ttf
+  text: "Hello\nWorld!"
+  font_path: /usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf
   font_size: 40
-  invert_colors: false
   vertical_spacing: 10
+  invert_colors: false
+  align: center  # options: left, center, right
   background: assets/Borders_and_Logos/250x122_Rounded_Frame_With_Shadow.bmp
 stocks:
   stocks:
