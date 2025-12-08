@@ -1,12 +1,13 @@
-current_dashboard: youtube
+current_dashboard: clock
 cycle:
-  enabled: false
+  enabled: true
   interval_minutes: 5
   dashboards:
     clock: true
-    youtube: true
+    youtube: false
     weather: true
     stocks: true
+    text: false
 clock:
   invert_colors: true
   font_path: fonts/home-video-font/HomeVideo-BLG6G.ttf
@@ -25,6 +26,14 @@ clock:
   # background: assets/Borders_and_Logos/250x122_Sqaure_With_Shadow_Background.bmp
   # background: null   # No background
   timezone: "America/Los_Angeles"
+text:
+  enabled: false
+  text: "YOUR TEXT HERE"
+  font_path: fonts/home-video-font/HomeVideo-BLG6G.ttf
+  font_size: 40
+  invert_colors: false
+  vertical_spacing: 10
+  background: assets/Borders_and_Logos/250x122_Rounded_Frame_With_Shadow.bmp
 stocks:
   stocks:
   symbols:
