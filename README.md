@@ -241,6 +241,7 @@ Open `http://your-pi-ip-address:8080` in any web browser to access the control p
 - **Weather**: Local forecast with beautiful weather icons
 - **Stocks**: Your portfolio at a glance
 - **YouTube**: Channel growth and statistics
+- **Text**: Simply displays custom text
 
 ### Advanced Configuration
 
