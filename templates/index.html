@@ -75,6 +75,14 @@
             <span class="toggle-text">Text</span>
           </label>
         </div>
+        </div>
+        <div class="toggle-group">
+          <label class="toggle-label">
+            <input type="checkbox" name="enable_text" 
+                  {% if dashboard_enables.get('image', True) %}checked{% endif %}>
+            <span class="toggle-text">Text</span>
+          </label>
+        </div>
       </div>
 
       <button type="submit" class="save-button">Save Cycling Settings</button>

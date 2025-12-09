@@ -5,7 +5,8 @@ dashboards = {
     "weather": weather.render,
     "stocks": stocks.render,
     "youtube": youtube.render,
-    "text": text.render
+    "text": text.render,
+    "image": image.render
 }
 
 def show_dashboard(name, epd, config, flip_screen=False):

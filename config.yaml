@@ -68,6 +68,9 @@ youtube:
   invert_colors: false
   refresh_interval_seconds: 600
   background: assets/Borders_and_Logos/250x122_Rounded_Frame_With_Shadow.bmp
+image:
+  path: assets/Borders_and_Logos/YouTube_Logo_68x48.bmp
+  # optionally: maybe invert_colors, flip_screen etc.
 logging:
   level: DEBUG #"DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"
 
