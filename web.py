@@ -2,14 +2,15 @@ from flask import Flask, render_template, request, redirect
 import yaml
 import os
 from werkzeug.utils import secure_filename
+import glob
 
 app = Flask(__name__)
 
 CONFIG_PATH = 'config.yaml'
 FLAG_PATH = '.refresh_dashboard.flag'  # IPC flag
 
-# Folder to save user-uploaded images
-UPLOAD_FOLDER = 'static/assets/User_Images'
+# Folder to save user-uploaded images (working directory)
+UPLOAD_FOLDER = 'assets/User_Images'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
@@ -42,8 +43,9 @@ def index():
                 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
                 save_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
                 file.save(save_path)
+                app.logger.debug(f"Saved image to: {save_path}, exists: {os.path.exists(save_path)}")
                 # Save relative path to config
-                config['image'] = {'path': save_path.replace('static/', '')}
+                config['image'] = {'path': save_path}
 
         # --- Handle dashboard selection ---
         if 'dashboard' in request.form:
@@ -65,14 +67,18 @@ def index():
 
         save_config(config)
         return redirect('/')
-    
-    # Prepare variables for template
+
+    # List all images in assets/User_Images
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+    images_list = [os.path.basename(f) for f in glob.glob(os.path.join(app.config['UPLOAD_FOLDER'], '*'))]
+
     cycle_config = config.get('cycle', {})
     return render_template('index.html', 
                            current=config.get('current_dashboard', 'clock'),
                            cycle_enabled=cycle_config.get('enabled', False),
                            cycle_interval=cycle_config.get('interval_minutes', 5),
-                           dashboard_enables=cycle_config.get('dashboards', {}))
+                           dashboard_enables=cycle_config.get('dashboards', {}),
+                           images_list=images_list)
 
 @app.route('/edit', methods=['GET', 'POST'])
 def edit():

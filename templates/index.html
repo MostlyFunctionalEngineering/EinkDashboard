@@ -103,3 +103,16 @@
     <button type="submit" name="upload_image" class="save-button">Upload Image</button>
   </form>
 </div>
+
+<div class="section">
+  <h3>Available Images</h3>
+  {% if images_list %}
+    <ul>
+      {% for img in images_list %}
+        <li>{{ img }}</li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No images uploaded yet.</p>
+  {% endif %}
+</div>
