@@ -1,4 +1,5 @@
 current_dashboard: clock
+flip_screen: false  # or true if you want the display upside-down
 cycle:
   enabled: true
   interval_minutes: 5

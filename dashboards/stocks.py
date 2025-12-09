@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 logger = logging.getLogger(__name__)
 
-def render(epd, config):
+def render(epd, config, flip_screen=false):
     try:
         logger.debug("Rendering stocks dashboard")
         height, width = epd.height, epd.width
@@ -90,7 +90,8 @@ def render(epd, config):
         rotated_red = red_img.rotate(90, expand=True)
         if invert:
             rotated_black = Image.eval(rotated_black, lambda px: 255 - px)
-
+        if flip_screen:
+            image = image.rotate(180)  # flip upside-down
         epd.display_fast(epd.getbuffer(rotated_black))
         logger.debug("Stocks dashboard rendered")
 

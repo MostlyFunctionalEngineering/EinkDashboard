@@ -8,7 +8,7 @@ dashboards = {
     "text": text.render
 }
 
-def show_dashboard(name, epd, config):
+def show_dashboard(name, epd, config, flip_screen=False):
     if name not in dashboards:
         raise ValueError(f"No dashboard found for: {name}")
-    dashboards[name](epd, config)
+    dashboards[name](epd, config, flip_screen=flip_screen)

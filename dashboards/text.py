@@ -4,7 +4,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-def render(epd, config):
+def render(epd, config, flip_screen=false):
     logger.debug("Rendering text dashboard")
 
     try:
@@ -73,7 +73,12 @@ def render(epd, config):
         # Apply mask to base image
         black_img.paste(Image.new('1', (height, width), text_color), (0, 0), mask)
 
+        if invert:
+            blac_img = Image.eval(black_img, lambda px: 255 - px)
+
         logger.debug("Sending text dashboard to display")
+        if flip_screen:
+            image = image.rotate(180)  # flip upside-down
         epd.display_fast(epd.getbuffer(black_img))
         logger.debug("Text dashboard rendered")
 

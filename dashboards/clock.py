@@ -6,7 +6,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-def render(epd, config):
+def render(epd, config, flip_screen=false):
     logger.debug("Rendering clock dashboard")
 
     try:
@@ -90,6 +90,8 @@ def render(epd, config):
         black_img.paste(Image.new('1', (height, width), text_color), (0, 0), mask)
 
         logger.debug("Sending image to display")
+        if flip_screen:
+            image = image.rotate(180)  # flip upside-down
         epd.display_fast(epd.getbuffer(black_img))
         logger.debug("Clock dashboard rendered")
 

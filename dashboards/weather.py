@@ -104,7 +104,7 @@ def fetch_weather(lat, lon, forecast_mode, use_celsius):
     r.raise_for_status()
     return r.json()
 
-def render(epd, config):
+def render(epd, config, flip_screen=false):
     try:
         logger.debug("Rendering weather dashboard")
         height, width = epd.width, epd.height
@@ -266,7 +266,8 @@ def render(epd, config):
 
         if invert:
             rotated_black = Image.eval(rotated_black, lambda px: 255 - px)
-
+        if flip_screen:
+            image = image.rotate(180)  # flip upside-down
         epd.display_fast(epd.getbuffer(rotated_black))
         logger.debug("Weather dashboard rendered")
 

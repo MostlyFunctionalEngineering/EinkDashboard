@@ -80,6 +80,7 @@ def main():
             cycle_config = config.get('cycle', {})
             cycle_enabled = cycle_config.get('enabled', False)
             cycle_interval_minutes = cycle_config.get('interval_minutes', 5)
+            flip_screen = config.get('flip_screen', False)
             
             now = time.time()
             force_refresh = check_and_clear_flag()
@@ -117,7 +118,7 @@ def main():
 
             if should_render:
                 try:
-                    show_dashboard(current, epd, config)
+                    show_dashboard(current, epd, config, flip_screen=flip_screen)
                     logging.info(f"Rendered dashboard: {current}")
                     last_rendered = now
                     last_dashboard = current
