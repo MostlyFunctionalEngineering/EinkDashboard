@@ -109,7 +109,13 @@
   {% if images_list %}
     <ul>
       {% for img in images_list %}
-        <li>{{ img }}</li>
+        <li>
+          {{ img }}
+          <form method="POST" style="display:inline;">
+            <input type="hidden" name="delete_image" value="{{ img }}">
+            <button type="submit" style="color:red; font-weight:bold; border:none; background:none; cursor:pointer;">X</button>
+          </form>
+        </li>
       {% endfor %}
     </ul>
   {% else %}

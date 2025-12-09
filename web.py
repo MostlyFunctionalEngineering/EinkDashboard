@@ -83,6 +83,15 @@ def index():
                            dashboard_enables=cycle_config.get('dashboards', {}),
                            images_list=images_list)
 
+    # --- Handle image deletion ---
+    if 'delete_image' in request.form:
+        img_to_delete = request.form['delete_image']
+        if os.path.exists(img_to_delete):
+            os.remove(img_to_delete)
+            app.logger.debug(f"Deleted image: {img_to_delete}")
+        return redirect('/')  # reload page after deletion
+
+
 @app.route('/edit', methods=['GET', 'POST'])
 def edit():
     if request.method == 'POST':
