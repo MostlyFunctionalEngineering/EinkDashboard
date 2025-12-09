@@ -8,7 +8,7 @@ def render(epd, config, flip_screen=False):
     logger.debug("Rendering image dashboard")
 
     try:
-        height, width = epd.height, epd.width  # e.g., height=122, width=250
+        height, width = epd.height, epd.width  # height=122, width=250
         cfg = config.get('image', {})
         img_path = cfg.get('path')
 
@@ -41,6 +41,9 @@ def render(epd, config, flip_screen=False):
         x = (width - img_w) // 2
         y = (height - img_h) // 2
         canvas.paste(img.convert('1'), (x, y))
+
+        # Rotate 90° counter-clockwise to match display orientation
+        canvas = canvas.rotate(-90, expand=True)
 
         # Flip if requested
         if flip_screen:
