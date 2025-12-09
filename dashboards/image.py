@@ -17,21 +17,23 @@ def render(epd, config, flip_screen=False):
             return
 
         invert = cfg.get('invert_colors', False)
-        full_screen = cfg.get('full_screen', True)
+        scale_mode = cfg.get('scale_mode', 'fit')  # 'fit', 'fill', or 'none'
 
         # Load image
         img = Image.open(img_path).convert('L')
         img_w, img_h = img.size
 
-        if full_screen:
-            # Scale up or down to fill display while keeping aspect ratio
+        if scale_mode in ('fit', 'fill'):
             scale_w = height / img_w
             scale_h = width / img_h
-            scale = min(scale_w, scale_h)
+            if scale_mode == 'fit':
+                scale = min(scale_w, scale_h)  # scale to fit with bars
+            else:
+                scale = max(scale_w, scale_h)  # zoom to fill, may crop
             if scale != 1.0:
                 img = img.resize((int(img_w * scale), int(img_h * scale)), Image.LANCZOS)
                 img_w, img_h = img.size
-        else:
+        elif scale_mode == 'none':
             # Only scale down if image is larger than display
             if img_w > height or img_h > width:
                 scale_w = height / img_w
@@ -39,7 +41,6 @@ def render(epd, config, flip_screen=False):
                 scale = min(scale_w, scale_h, 1.0)
                 img = img.resize((int(img_w * scale), int(img_h * scale)), Image.LANCZOS)
                 img_w, img_h = img.size
-            # Else, keep original size (no scaling)
 
         if invert:
             img = ImageOps.invert(img)
@@ -56,7 +57,7 @@ def render(epd, config, flip_screen=False):
             canvas = canvas.rotate(180)
 
         epd.display_fast(epd.getbuffer(canvas))
-        logger.info(f"Image displayed: {img_path} (full_screen={full_screen})")
+        logger.info(f"Image displayed: {img_path} (scale_mode={scale_mode})")
 
     except Exception as e:
         logger.exception(f"Image dashboard failed: {e}")
