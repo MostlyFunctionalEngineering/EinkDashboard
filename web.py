@@ -38,7 +38,7 @@ def index():
 
         # Update dashboard enables
         dashboards_config = cycle_config.setdefault('dashboards', {})
-        for dashboard in ['clock', 'youtube', 'weather', 'stocks', 'text']:
+        for dashboard in ['clock', 'youtube', 'weather', 'stocks', 'text', 'image']:
             dashboards_config[dashboard] = f'enable_{dashboard}' in request.form
 
         save_config(config)
