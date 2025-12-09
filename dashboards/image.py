@@ -8,7 +8,7 @@ def render(epd, config, flip_screen=False):
     logger.debug("Rendering image dashboard")
 
     try:
-        width, height = epd.width, epd.height  # width=250, height=122
+        height, width = epd.height, epd.width  # e.g., height=122, width=250
         cfg = config.get('image', {})
         img_path = cfg.get('path')
 
@@ -16,32 +16,33 @@ def render(epd, config, flip_screen=False):
             logger.error(f"No valid image path: {img_path}")
             return
 
+        # Optional invert
         invert = cfg.get('invert_colors', False)
-        full_screen = cfg.get('full_screen', True)
 
         # Load image
         img = Image.open(img_path).convert('L')
+        img_w, img_h = img.size
+
+        # Resize if larger than display
+        scale_w = width / img_w
+        scale_h = height / img_h
+        scale = min(scale_w, scale_h, 1.0)  # never scale up
+        if scale < 1.0:
+            new_w = int(img_w * scale)
+            new_h = int(img_h * scale)
+            img = img.resize((new_w, new_h), Image.LANCZOS)
+            img_w, img_h = img.size
+
         if invert:
             img = ImageOps.invert(img)
 
-        # Create canvas in display orientation (width × height)
+        # Create display canvas and paste image centered
         canvas = Image.new('1', (width, height), 255)  # white background
+        x = (width - img_w) // 2
+        y = (height - img_h) // 2
+        canvas.paste(img.convert('1'), (x, y))
 
-        if full_screen:
-            # Stretch to fill display exactly
-            img_resized = img.resize((width, height))
-            canvas.paste(img_resized.convert('1'), (0, 0))
-        else:
-            # Center without scaling
-            img_w, img_h = img.size
-            x = (width - img_w) // 2
-            y = (height - img_h) // 2
-            canvas.paste(img.convert('1'), (x, y))
-
-        # Rotate 90° clockwise to match display orientation
-        canvas = canvas.rotate(-90, expand=True)
-
-        # Flip upside-down if requested
+        # Flip if requested
         if flip_screen:
             canvas = canvas.rotate(180)
 
