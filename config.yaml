@@ -71,6 +71,7 @@ youtube:
   background: assets/Borders_and_Logos/250x122_Rounded_Frame_With_Shadow.bmp
 image:
   path: assets/Borders_and_Logos/250x122_Geometric_Pattern.bmp
+  full_scree: true
   # optionally: maybe invert_colors, flip_screen etc.
 logging:
   level: DEBUG #"DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"

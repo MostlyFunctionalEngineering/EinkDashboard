@@ -8,7 +8,7 @@ def render(epd, config, flip_screen=False):
     logger.debug("Rendering image dashboard")
 
     try:
-        height, width = epd.height, epd.width  # height=122, width=250
+        width, height = epd.width, epd.height  # note: PIL uses (width, height)
         cfg = config.get('image', {})
         img_path = cfg.get('path')
 
@@ -16,31 +16,28 @@ def render(epd, config, flip_screen=False):
             logger.error(f"No valid image path: {img_path}")
             return
 
-        # Optional invert
         invert = cfg.get('invert_colors', False)
+        full_screen = cfg.get('full_screen', True)
 
         # Load image
         img = Image.open(img_path).convert('L')
-        img_w, img_h = img.size
-
         if invert:
             img = ImageOps.invert(img)
 
-        # Create display-sized canvas
-        black_img = Image.new('1', (height, width), 255)
+        # Create canvas
+        black_img = Image.new('1', (width, height), 255)  # white background
 
-        # Resize to fill screen if full-screen is desired
-        full_screen = cfg.get('full_screen', True)
         if full_screen:
-            img = img.resize((height, width))
-            black_img.paste(img)
+            # Resize to fill display exactly
+            img_resized = img.resize((width, height))
+            black_img.paste(img_resized.convert('1'), (0, 0))
         else:
-            # Keep original size and center
+            # Keep original size, center
+            img_w, img_h = img.size
             x = (width - img_w) // 2
             y = (height - img_h) // 2
-            black_img.paste(img, (x, y))
+            black_img.paste(img.convert('1'), (x, y))
 
-        # Flip if requested
         if flip_screen:
             black_img = black_img.rotate(180)
 
