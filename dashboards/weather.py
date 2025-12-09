@@ -104,7 +104,7 @@ def fetch_weather(lat, lon, forecast_mode, use_celsius):
     r.raise_for_status()
     return r.json()
 
-def render(epd, config, flip_screen=false):
+def render(epd, config, flip_screen=False):
     try:
         logger.debug("Rendering weather dashboard")
         height, width = epd.width, epd.height

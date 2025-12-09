@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 
 logger = logging.getLogger(__name__)
 
-def render(epd, config, flip_screen=false):
+def render(epd, config, flip_screen=False):
     logger.debug("Rendering YouTube dashboard")
 
     try:
