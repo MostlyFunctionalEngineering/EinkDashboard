@@ -229,8 +229,9 @@ Open `http://your-pi-ip-address:8080` in any web browser to access the control p
 - Choose any dashboard from the dropdown
 - Click "Set Dashboard" to switch immediately (well, it takes a second to populate the info, but you get the point)
 - Perfect for checking specific information quickly
+- NOTE: Manually selecting a dashboard will override auto dashboard cycling!
 
-#### **Auto-Cycling Magic**
+#### **Auto-Cycling**
 - **Enable Auto-Cycling**: Toggle the master switch
 - **Set Interval**: Choose how many minutes between switches (1-1440 minutes)
 - **Choose Dashboards**: Toggle which dashboards to include in the cycle
@@ -240,8 +241,15 @@ Open `http://your-pi-ip-address:8080` in any web browser to access the control p
 - **Clock**: Always-updated time and date
 - **Weather**: Local forecast with beautiful weather icons
 - **Stocks**: Your portfolio at a glance
-- **YouTube**: Channel growth and statistics
+- **YouTube**: Channel subscriber count and plot
 - **Text**: Simply displays custom text
+- **Image**: Simply displays an image (png or bmp only!)
+
+#### **Upload Image**
+- **Uploading**: The "image" dashboard can display images at 255x122. It will automatically convert images to gray scale. Uploading an image will automatically set it to the "preferred" image, which will be displayed when the "image" dashboard is selected. 
+- **Available Images**: There is a list of available images, which are stored in `assets/User_Images`. Clicking the `X` next to an image will delete it. It is possible to delete an image that is currently the selected image, which may crash the image dashboard.
+- **Image Settings**: There are additional image settings (such as fill and fit options) in the advanced configuration
+- **Additional Images**: There are some default images and backgrounds in the `assets/Borders_and_Logos` folder 
 
 ### Advanced Configuration
 
@@ -251,6 +259,8 @@ Click **"Edit Raw Config"** to modify advanced settings:
 - Background images
 - Refresh intervals
 - API endpoints
+
+There are a TON of settings in here, so feel free to play around with them!
 
 #### Service Management
 Useful commands for managing your dashboard:
@@ -272,7 +282,7 @@ sudo systemctl stop eink-dashboard.service
 The project is designed to be extensible! Check the `dashboards/` folder to see how existing dashboards work, then create your own.
 
 ### Custom Fonts
-Drop new fonts into the `fonts/` folder and reference them in `config.yaml`. NOTE: I only really tested stuff using one font. You might have to play with the config or locations of things if you start picking other fonts!!!
+Drop new fonts into the `fonts/` folder and reference them in `config.yaml`. NOTE: I only really tested stuff using one font. You might have to play with the config or locations of things if you start picking other fonts!!! Things like locations and sizing will likely absolutely blow up if you start messing with things too much lol
 
 ### Background Images
 Add custom backgrounds to `assets/` and configure them per dashboard.
