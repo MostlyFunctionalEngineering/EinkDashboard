@@ -32,7 +32,10 @@ def render(epd, config, flip_screen=False):
                 now = datetime.now()
         else:
             now = datetime.now()
-        time_str = now.strftime('%H:%M' if use_24hr else '%I:%M').lstrip('0')
+        if use_24hr:
+            time_str = now.strftime('%H:%M')  # keep leading zero
+        else:
+            time_str = now.strftime('%I:%M').lstrip('0')  # strip leading zero
         date_str = now.strftime(date_format) if show_date else None
 
         logger.debug(f"Time: {time_str}, Date: {date_str if show_date else 'N/A'}")
