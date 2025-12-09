@@ -1,4 +1,4 @@
-from dashboards import clock, weather, stocks, youtube, text
+from dashboards import clock, weather, stocks, youtube, text, image
 
 dashboards = {
     "clock": clock.render,
