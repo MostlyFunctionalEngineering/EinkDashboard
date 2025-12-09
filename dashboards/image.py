@@ -41,10 +41,7 @@ def render(epd, config, flip_screen=False):
         if flip_screen:
             canvas = canvas.rotate(180)
 
-        # **Single final rotation to match physical display**
-        canvas = canvas.transpose(Image.ROTATE_270)  # 270° CW == 90° CCW
-        # Alternatively: Image.ROTATE_90 for clockwise depending on mounting
-
+        # Send to display (no extra rotation!)
         epd.display(epd.getbuffer(canvas))
         logger.info(f"Image dashboard displayed: {img_path}")
 
