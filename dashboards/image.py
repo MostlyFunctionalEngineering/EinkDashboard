@@ -16,22 +16,27 @@ def render(epd, config, flip_screen=False):
             logger.error(f"No valid image path: {img_path}")
             return
 
-        # Load and convert
+        # Load image
         img = Image.open(img_path).convert('L')
+        img_w, img_h = img.size
 
         # Optional invert
-        invert = cfg.get('invert_colors', False)
         if invert:
             img = ImageOps.invert(img)
 
-        # Create canvas
-        black_img = Image.new('1', (width, height), 255)  # width x height
+        # Create display-sized canvas
+        black_img = Image.new('1', (height, width), 255)
 
-        # Center image on canvas
-        img_w, img_h = img.size
-        x = (width - img_w) // 2
-        y = (height - img_h) // 2
-        black_img.paste(img, (x, y))
+        # Resize to fill screen if full-screen is desired
+        full_screen = cfg.get('full_screen', True)
+        if full_screen:
+            img = img.resize((height, width))
+            black_img.paste(img)
+        else:
+            # Keep original size and center
+            x = (width - img_w) // 2
+            y = (height - img_h) // 2
+            black_img.paste(img, (x, y))
 
         # Flip if requested
         if flip_screen:
