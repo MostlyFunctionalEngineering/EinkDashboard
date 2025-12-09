@@ -9,6 +9,7 @@ cycle:
     weather: true
     stocks: true
     text: false
+    image: true
 clock:
   invert_colors: false
   font_path: fonts/home-video-font/HomeVideo-BLG6G.ttf
