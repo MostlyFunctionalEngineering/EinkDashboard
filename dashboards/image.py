@@ -16,11 +16,13 @@ def render(epd, config, flip_screen=False):
             logger.error(f"No valid image path: {img_path}")
             return
 
+        # Optional invert
+        invert = cfg.get('invert_colors', False)
+
         # Load image
         img = Image.open(img_path).convert('L')
         img_w, img_h = img.size
 
-        # Optional invert
         if invert:
             img = ImageOps.invert(img)
 
