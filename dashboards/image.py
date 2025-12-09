@@ -8,7 +8,7 @@ def render(epd, config, flip_screen=False):
     logger.debug("Rendering image dashboard")
 
     try:
-        height, width = epd.height, epd.width
+        height, width = epd.height, epd.width  # height=122, width=250
         cfg = config.get('image', {})
         img_path = cfg.get('path')
 
@@ -25,12 +25,12 @@ def render(epd, config, flip_screen=False):
             img = ImageOps.invert(img)
 
         # Create canvas
-        black_img = Image.new('1', (height, width), 255)
+        black_img = Image.new('1', (width, height), 255)  # width x height
 
         # Center image on canvas
         img_w, img_h = img.size
-        x = (height - img_w) // 2
-        y = (width - img_h) // 2
+        x = (width - img_w) // 2
+        y = (height - img_h) // 2
         black_img.paste(img, (x, y))
 
         # Flip if requested
