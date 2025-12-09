@@ -78,7 +78,7 @@ def render(epd, config, flip_screen=False):
 
         logger.debug("Sending text dashboard to display")
         if flip_screen:
-            blac_img = blac_img.rotate(180)  # flip upside-down
+            black_img = black_img.rotate(180)  # flip upside-down
         epd.display_fast(epd.getbuffer(black_img))
         logger.debug("Text dashboard rendered")
 
