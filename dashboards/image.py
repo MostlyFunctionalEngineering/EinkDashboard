@@ -8,7 +8,7 @@ def render(epd, config, flip_screen=False):
     logger.debug("Rendering image dashboard")
 
     try:
-        epd_height, epd_width = epd.height, epd.width  # epaper driver
+        height, width = epd.height, epd.width  # same as clock.py
         cfg = config.get('image', {})
         img_path = cfg.get('path')
 
@@ -23,10 +23,10 @@ def render(epd, config, flip_screen=False):
         img = Image.open(img_path).convert('L')
         img_w, img_h = img.size
 
-        # Resize if larger than display, maintain aspect ratio
-        scale_w = epd_width / img_w
-        scale_h = epd_height / img_h
-        scale = min(scale_w, scale_h, 1.0)  # never scale up
+        # Downscale if bigger than display (maintain aspect ratio)
+        scale_w = height / img_w
+        scale_h = width / img_h
+        scale = min(scale_w, scale_h, 1.0)
         if scale < 1.0:
             img = img.resize((int(img_w * scale), int(img_h * scale)), Image.LANCZOS)
             img_w, img_h = img.size
@@ -34,15 +34,15 @@ def render(epd, config, flip_screen=False):
         if invert:
             img = ImageOps.invert(img)
 
-        # Create canvas in Pillow format: (width, height)
-        canvas = Image.new('1', (epd_width, epd_height), 255)  # white background
+        # Create display-sized canvas (height x width)
+        canvas = Image.new('1', (height, width), 255)  # white background
 
-        # Center image
-        x = (epd_width - img_w) // 2
-        y = (epd_height - img_h) // 2
+        # Paste image centered (swap width/height for coordinates)
+        x = (height - img_w) // 2
+        y = (width - img_h) // 2
         canvas.paste(img.convert('1'), (x, y))
 
-        # Only flip if requested
+        # Flip if requested
         if flip_screen:
             canvas = canvas.rotate(180)
 
