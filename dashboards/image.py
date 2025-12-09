@@ -23,29 +23,26 @@ def render(epd, config, flip_screen=False):
         img = Image.open(img_path).convert('L')
         img_w, img_h = img.size
 
-        # Resize if larger than display
+        # Resize if larger than display, maintain aspect ratio
         scale_w = width / img_w
         scale_h = height / img_h
         scale = min(scale_w, scale_h, 1.0)  # never scale up
         if scale < 1.0:
-            new_w = int(img_w * scale)
-            new_h = int(img_h * scale)
-            img = img.resize((new_w, new_h), Image.LANCZOS)
+            img = img.resize((int(img_w * scale), int(img_h * scale)), Image.LANCZOS)
             img_w, img_h = img.size
 
         if invert:
             img = ImageOps.invert(img)
 
-        # Create display canvas and paste image centered
-        canvas = Image.new('1', (width, height), 255)  # white background
+        # Create canvas in display orientation (height, width)
+        canvas = Image.new('1', (height, width), 255)  # white background
+
+        # Center image
         x = (width - img_w) // 2
         y = (height - img_h) // 2
         canvas.paste(img.convert('1'), (x, y))
 
-        # Rotate 90° counter-clockwise to match display orientation
-        canvas = canvas.rotate(-90, expand=True)
-
-        # Flip if requested
+        # Only flip if requested
         if flip_screen:
             canvas = canvas.rotate(180)
 
