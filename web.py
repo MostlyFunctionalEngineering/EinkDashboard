@@ -44,8 +44,10 @@ def index():
                 save_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
                 file.save(save_path)
                 app.logger.debug(f"Saved image to: {save_path}, exists: {os.path.exists(save_path)}")
-                # Save relative path to config
-                config['image'] = {'path': save_path}
+
+                # --- Update config without overwriting other keys ---
+                image_config = config.setdefault('image', {})
+                image_config['path'] = save_path
 
         # --- Handle dashboard selection ---
         if 'dashboard' in request.form:
@@ -70,7 +72,8 @@ def index():
 
     # List all images in assets/User_Images
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-    images_list = [os.path.basename(f) for f in glob.glob(os.path.join(app.config['UPLOAD_FOLDER'], '*'))]
+    images_list = [os.path.join(app.config['UPLOAD_FOLDER'], os.path.basename(f)) 
+                for f in glob.glob(os.path.join(app.config['UPLOAD_FOLDER'], '*'))]
 
     cycle_config = config.get('cycle', {})
     return render_template('index.html', 
