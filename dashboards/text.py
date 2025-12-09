@@ -19,6 +19,18 @@ def render(epd, config, flip_screen=False):
         invert = text_cfg.get('invert_colors', False)
         bg_path = text_cfg.get('background')
         align = text_cfg.get('align', 'center').lower()  # default center
+        vertical_align = text_cfg.get('vertical_align', 'center').lower()
+        if vertical_align not in ['top', 'center', 'bottom']:
+            logger.warning(f"Invalid vertical_align '{vertical_align}', defaulting to 'center'")
+            vertical_align = 'center'
+
+        # Calculate top_y based on alignment
+        if vertical_align == 'top':
+            top_y = 0
+        elif vertical_align == 'bottom':
+            top_y = width - total_height
+        else:  # center
+            top_y = (width - total_height) // 2
 
         if align not in ['left', 'center', 'right']:
             logger.warning(f"Invalid align value '{align}', defaulting to 'center'")
