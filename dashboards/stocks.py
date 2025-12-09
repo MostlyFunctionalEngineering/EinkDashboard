@@ -91,7 +91,7 @@ def render(epd, config, flip_screen=False):
         if invert:
             rotated_black = Image.eval(rotated_black, lambda px: 255 - px)
         if flip_screen:
-            image = image.rotate(180)  # flip upside-down
+            rotated_black = rotated_black.rotate(180)  # flip upside-down
         epd.display_fast(epd.getbuffer(rotated_black))
         logger.debug("Stocks dashboard rendered")
 

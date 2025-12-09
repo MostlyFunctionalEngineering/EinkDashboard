@@ -91,7 +91,7 @@ def render(epd, config, flip_screen=False):
 
         logger.debug("Sending image to display")
         if flip_screen:
-            image = image.rotate(180)  # flip upside-down
+            black_img = black_img.rotate(180)  # flip upside-down
         epd.display_fast(epd.getbuffer(black_img))
         logger.debug("Clock dashboard rendered")
 
