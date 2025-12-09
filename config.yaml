@@ -70,7 +70,7 @@ youtube:
   refresh_interval_seconds: 600
   background: assets/Borders_and_Logos/250x122_Rounded_Frame_With_Shadow.bmp
 image:
-  path: assets/Borders_and_Logos/250x122_Geometric_Pattern.bmp
+  path: assets/Borders_and_Logos/323X162_Uncle_Sam.png
   scale_mode: fill # 'fit', 'fill', or 'none'
   invert_colors: false
   # optionally: maybe invert_colors, flip_screen etc.
