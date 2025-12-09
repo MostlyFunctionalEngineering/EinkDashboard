@@ -24,18 +24,6 @@ def render(epd, config, flip_screen=False):
             logger.warning(f"Invalid vertical_align '{vertical_align}', defaulting to 'center'")
             vertical_align = 'center'
 
-        # Calculate top_y based on alignment
-        if vertical_align == 'top':
-            top_y = 0
-        elif vertical_align == 'bottom':
-            top_y = width - total_height
-        else:  # center
-            top_y = (width - total_height) // 2
-
-        if align not in ['left', 'center', 'right']:
-            logger.warning(f"Invalid align value '{align}', defaulting to 'center'")
-            align = 'center'
-
         # Colors
         background_color = 0 if invert else 255
         text_color = 255 if invert else 0
@@ -63,6 +51,18 @@ def render(epd, config, flip_screen=False):
         line_sizes = [font.getmask(line).size for line in lines]
         total_height = sum(h for _, h in line_sizes) + spacing * (len(lines) - 1)
         top_y = (width - total_height) // 2
+
+        if vertical_align not in ['top', 'center', 'bottom']:
+            logger.warning(f"Invalid vertical_align '{vertical_align}', defaulting to 'center'")
+            vertical_align = 'center'
+
+        # Calculate top_y based on alignment
+        if vertical_align == 'top':
+            top_y = 0
+        elif vertical_align == 'bottom':
+            top_y = width - total_height
+        else:  # center
+            top_y = (width - total_height) // 2
 
         text_layer = Image.new('L', (height, width), 255)
         draw = ImageDraw.Draw(text_layer)
