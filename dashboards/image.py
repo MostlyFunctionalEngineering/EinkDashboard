@@ -18,17 +18,22 @@ def render(epd, config, flip_screen=False):
 
         # Load and convert
         img = Image.open(img_path).convert('L')
-        img = img.resize((height, width))  # match display buffer
 
         # Optional invert
         invert = cfg.get('invert_colors', False)
         if invert:
             img = ImageOps.invert(img)
 
-        # Canvas
+        # Create canvas
         black_img = Image.new('1', (height, width), 255)
-        black_img.paste(img)
 
+        # Center image on canvas
+        img_w, img_h = img.size
+        x = (height - img_w) // 2
+        y = (width - img_h) // 2
+        black_img.paste(img, (x, y))
+
+        # Flip if requested
         if flip_screen:
             black_img = black_img.rotate(180)
 
