@@ -33,8 +33,16 @@ def allowed_file(filename):
 @app.route('/', methods=['GET', 'POST'])
 def index():
     config = load_config()
-    
+
     if request.method == 'POST':
+        # --- Handle image deletion first ---
+        if 'delete_image' in request.form:
+            img_to_delete = request.form['delete_image']
+            if os.path.exists(img_to_delete):
+                os.remove(img_to_delete)
+                app.logger.debug(f"Deleted image: {img_to_delete}")
+            return redirect('/')  # reload page after deletion
+
         # --- Handle image upload ---
         if 'upload_image' in request.form and 'user_image' in request.files:
             file = request.files['user_image']
@@ -70,10 +78,10 @@ def index():
         save_config(config)
         return redirect('/')
 
-    # List all images in assets/User_Images
+    # --- GET request ---
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
     images_list = [os.path.join(app.config['UPLOAD_FOLDER'], os.path.basename(f)) 
-                for f in glob.glob(os.path.join(app.config['UPLOAD_FOLDER'], '*'))]
+                   for f in glob.glob(os.path.join(app.config['UPLOAD_FOLDER'], '*'))]
 
     cycle_config = config.get('cycle', {})
     return render_template('index.html', 
@@ -83,13 +91,6 @@ def index():
                            dashboard_enables=cycle_config.get('dashboards', {}),
                            images_list=images_list)
 
-    # --- Handle image deletion ---
-    if 'delete_image' in request.form:
-        img_to_delete = request.form['delete_image']
-        if os.path.exists(img_to_delete):
-            os.remove(img_to_delete)
-            app.logger.debug(f"Deleted image: {img_to_delete}")
-        return redirect('/')  # reload page after deletion
 
 
 @app.route('/edit', methods=['GET', 'POST'])
