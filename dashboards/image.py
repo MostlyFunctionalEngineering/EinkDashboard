@@ -41,7 +41,10 @@ def render(epd, config, flip_screen=False):
         if flip_screen:
             canvas = canvas.rotate(180)
 
-        # Send to display (no extra rotation!)
+        # **Rotate to match epd buffer expectation**
+        canvas = canvas.rotate(90, expand=True)
+
+        # Send to display
         epd.display(epd.getbuffer(canvas))
         logger.info(f"Image dashboard displayed: {img_path}")
 
